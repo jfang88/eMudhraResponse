@@ -9,14 +9,14 @@ Replace role placeholders with actual owners and internal task links. Do not pub
 | Work package | Named owner / deputy | Task / distribution link | Acknowledged | Due | Status |
 | --- | --- | --- | --- | --- | --- |
 | SEC | TBD | Pending | No | T0 + 24h | Not started |
-| EUC | TBD | Pending | No | Set by priority | Not started |
-| LNX | TBD | Pending | No | Set by priority | Not started |
-| WIN | TBD | Pending | No | Set by priority | Not started |
-| APP | TBD | Pending | No | Set by priority | Not started |
-| CTR | TBD | Pending | No | Set by priority | Not started |
-| NET | TBD | Pending | No | Set by priority | Not started |
-| VND | TBD | Pending | No | Set by priority | Not started |
-| SOC | TBD | Pending | No | Set by priority | Not started |
+| EUC | TBD | Pending | No | Set by risk tier | Not started |
+| LNX | TBD | Pending | No | Set by risk tier | Not started |
+| WIN | TBD | Pending | No | Set by risk tier | Not started |
+| APP | TBD | Pending | No | Set by risk tier | Not started |
+| CTR | TBD | Pending | No | Set by risk tier | Not started |
+| NET | TBD | Pending | No | Set by risk tier | Not started |
+| VND | TBD | Pending | No | Set by risk tier | Not started |
+| SOC | TBD | Pending | No | Set by risk tier | Not started |
 
 ## Per-application / verification-path record
 
@@ -25,6 +25,13 @@ Copy this record into the internal incident/task system for each distinct path.
 | Field | Required value |
 | --- | --- |
 | Asset/application and business criticality | |
+| Exposure tier (1–4), rationale, assessor and review date | |
+| TLS role: presents server cert / verifies server cert / verifies client cert / code signing | |
+| Internet/partner/internal reachability and outbound dependencies | |
+| Impact: credentials, data, privilege and downstream reach | |
+| Tier 4 evidence or promotion triggers, where applicable | |
+| Availability impact flag and separate urgency | |
+| Tier-based deadline | |
 | Team, owner, environment and scope denominator | |
 | Runtime/library/verifier and service identity | |
 | Effective store location, provenance and file hash (if applicable) | |
@@ -53,6 +60,8 @@ Copy this record into the internal incident/task system for each distinct path.
 | Closure approval and date | |
 
 ## Management report template
+
+Report the following separately for each tier, with an additional availability-impact summary. Unknown exposure is not a low-risk classification.
 
 As of [timestamp]: [N/total] assets assessed; [N/affected] remediated; [N/affected] validated. [N] remain unassessed, [N] exposed, [N] inconclusive and [N] under time-limited exceptions. Critical unresolved services: [internal reference]. Service impacts: [summary]. Decisions needed: [owner, action, deadline].
 
