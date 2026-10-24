@@ -1,0 +1,80 @@
+# CBOM tooling and Sectigo / AAA cross-sign validation
+
+**Verified sources: 24 October 2026. Proposed implementation; no enterprise scans have been executed.**
+
+## Decision
+
+Use three complementary evidence sets: **package SBOM and vulnerabilities; certificate/cryptographic inventory; effective runtime trust tests**. A CycloneDX output file is not automatically a certificate inventory, and a certificate inventory is not proof of accepted trust.
+
+## Tool capabilities and limits
+
+| Tool | Verified capability | Use in this response / limitation |
+| --- | --- | --- |
+| Trivy | Generates CycloneDX/SPDX SBOMs and scans package vulnerabilities. CycloneDX output requires explicit vulnerability scanning if findings are wanted. [T] | Find relevant CA-bundle/runtime versions and advisories. Reviewed documentation does not establish complete X.509 trust-store enumeration or effective chain validation. |
+| Syft + Grype | Syft produces package SBOMs; Grype matches packages to vulnerabilities. [S][G] | Useful package pipeline. Syft's X.509 CBOM inventory request #5190 remains open when checked; do not rely on that proposed feature as a shipped capability. [I] |
+| CBOMkit-theia | Discovers X.509 certificates in directories and container images and emits CycloneDX 1.6 CBOM data. Its certificate plugin records certificates and related cryptographic properties. [C] | Pilot for certificate discovery alongside SBOM scanning. It is not evidence that the running application's verifier accepts or rejects a chain. Confirm coverage for each store format. |
+| Native store tools / runtime APIs | Store-specific enumeration and validation mechanisms, selected for the deployed platform. | Use OpenSSL for relevant PEM/OpenSSL paths, Java keytool for store inventory plus JSSE tests, and Windows certificate APIs/tools under the relevant identity. These are collectors/validators, not turnkey cross-platform CBOM generators. |
+| CycloneDX CBOM | A representation for cryptographic assets such as certificates, algorithms and keys. [B] | Store discovery results with provenance and relationships. Maintain effective-trust observations alongside the CBOM; do not infer them merely from asset presence. |
+
+No reviewed documentation establishes a turnkey Trivy/Grype workflow that answers “which CAs does every running application currently trust?” Vulnerability detection also depends on advisory availability and package mapping; manually copied bundles can evade package-based findings.
+
+### Illustrative collection commands
+
+Use approved, pinned tool versions and an actual immutable image reference in place of the placeholder. These examples have not been run against enterprise images.
+
+```bash
+trivy image --scanners vuln --format cyclonedx --output image-sbom.json IMAGE_REFERENCE
+cbomkit-theia image IMAGE_REFERENCE -p certificates > image-cbom.json
+cbomkit-theia dir /path/to/approved/application-export -p certificates > application-cbom.json
+```
+
+The CBOM commands intentionally select the certificate plugin. Review output and logs before sharing; the tool documents sensitive-output considerations. Inspect ignore rules and confirm bundled certificates are not excluded. Do not assume encrypted keystores, OS-managed stores, static embedded roots or runtime mounts are covered. Supplement unsupported formats with native collectors.
+
+## Sectigo / AAA: relevant, but not a Sectigo root-key compromise
+
+**AAA Certificate Services** is the root name; this is unrelated to DNS AAAA records.
+
+The incident inventory shows eMudhra intermediate certificates and Sectigo-issued cross-certificates for the same compromised public keys. Certificate fingerprints differ between the two issuers, while the SPKI fingerprint identifies the shared key. [E]
+
+Sectigo states that it revoked the eight affected cross-certificates on 19 October 2026, ended the eMudhra cross-signing relationship and suffered no compromise of its systems or keys. It states that certificates issued to its own customers were unaffected. [A]
+
+**Operational implication:** removing only an emSign root is insufficient if an application's verifier can still accept the affected intermediate through AAA. A client that does not enforce applicable revocation or distrust may retain this alternative route. This is why the runbook tests both chain families.
+
+AAA's presence alone is not a failed assessment: an effective intermediate/key block can reject the affected chain while retaining legitimate AAA-dependent services. Conversely, no locally installed eMudhra intermediate is not a pass, because the remote peer can supply it.
+
+Prefer the platform vendor's supported remediation. Where a vendor prescribes removing a broad root from a static bundle, assess legitimate-service impact and validate the result. Do not independently remove all Sectigo roots or replace all Sectigo-issued certificates because of this incident.
+
+## Proposed inventory and comparison pipeline
+
+1. **Bind evidence to the deployment:** record application, image digest/host, runtime, service identity, verifier, store provenance and collection time.
+2. **Collect both images and live configuration:** inventory certificates from the final image and separately from mounted volumes, OS stores and custom application stores. Preserve store trust/distrust flags where available.
+3. **Normalise public certificate metadata:** certificate SHA-256, SHA-256 of DER SubjectPublicKeyInfo, subject, issuer, serial, validity, basic constraints, key usage/EKU and source location. Never include private-key material. SHA-256 certificate fingerprint and SPKI hash are different identifiers.
+4. **Compare with a dated incident reference:** retrieve [affected intermediates](https://emudhra.we-have-a-problem.com/impacted-intermediates.json) and [chain roots](https://emudhra.we-have-a-problem.com/roots.json). Record retrieval time and file hash. Match both certificate fingerprints and SPKI, including cross-signs.
+5. **Evaluate routes, not just matches:** identify whether affected chains can terminate at an enabled anchor under the application's actual purpose and policy. Include remote-supplied intermediates, custom trust and intermediate distrust. An anchor match triggers investigation; it is not an automatic verdict.
+6. **Execute validation:** test both emSign and AAA routes through the actual application verifier, plus a legitimate positive control. Record which chain and policy caused rejection. Use the [application runbook](APPLICATION_VALIDATION.md).
+7. **Publish separate results:** certificate present; potentially reachable trust path; confirmed acceptance; confirmed rejection; unknown coverage. Keep SBOM, CBOM and runtime-test references linked rather than collapsing them into one “clean” flag.
+
+Recommended record fields: asset ID, owner, store ID/hash, certificate hash, SPKI hash, observed role (anchor/intermediate/cache/leaf/unknown), enabled trust purpose, distrust mechanism, image digest, tested chain, acceptance result, timestamp and evidence link.
+
+## Scope beyond HTTPS
+
+The published affected inventory includes code-signing intermediates as well as TLS intermediates. [E] Endpoint security and software-distribution owners should assess the relevant code-signature verification policies and vendor updates separately. A successful HTTPS rejection test does not establish code-signing protection. Record applicability rather than assuming all code signatures or all Sectigo certificates are affected.
+
+## Pilot acceptance criteria
+
+Before relying on a collector at scale, use controlled fixtures to demonstrate discovery of a multi-certificate bundle, both issuer variants sharing a public key, an overridden store and a mounted stale bundle. Include an inaccessible/unsupported store and require an explicit unknown result.
+
+Demonstrate that the decision logic distinguishes (a) AAA present but the affected intermediate blocked, (b) emSign removed but an affected AAA route accepted, and (c) network failure rather than certificate rejection. Treat compiled/embedded roots and inaccessible stores as coverage gaps until independently assessed.
+
+## Sources
+
+- [T: Trivy SBOM documentation](https://trivy.dev/docs/latest/supply-chain/sbom/).
+- [S: Syft](https://github.com/anchore/syft).
+- [G: Grype](https://github.com/anchore/grype).
+- [I: Syft X.509 inventory request #5190](https://github.com/anchore/syft/issues/5190).
+- [C: CBOMkit-theia documentation](https://github.com/cbomkit/cbomkit-theia).
+- [B: CycloneDX CBOM capability](https://cyclonedx.org/capabilities/cbom/).
+- [E: Published affected certificate inventory](https://emudhra.we-have-a-problem.com/impacted-intermediates.json).
+- [A: Sectigo advisory](https://www.sectigo.com/resource-library/advisory-on-compromised-emudhra-intermediate-certificates).
+
+The pipeline, evidence schema and pilot criteria are proposed enterprise controls, not claims of built-in functionality in the tools above.
