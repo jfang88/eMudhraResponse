@@ -18,12 +18,20 @@ Security should establish one parent incident/change record and route the work p
 | VND — Supplier / service owners | Request product-specific applicability and remediation statements, including appliances and managed services. | Deployed product/version evidence, supplier response and deadline or compensating control for outstanding fixes. |
 | SOC — Detection / investigation | Review available TLS, proxy, endpoint and application telemetry for anomalies and incident-relevant certificate indicators. Escalate evidence of impersonation or credential exposure. | Documented review scope and retention limits; investigation records where warranted. Absence of alerts is not proof of no exploitation. |
 
-## Suggested milestones
+## Tier-based sequencing and milestones
 
-- **T0 to 24 hours:** name owners; acknowledge tasks; identify critical services, trust paths and unsupported assets; establish baseline coverage. Escalate confirmed vulnerable critical paths immediately.
-- **Within 48 hours:** target critical-path remediation and validation, or document compensating controls and a named risk owner.
-- **Within seven days:** target remaining supported estate; review each unresolved or unavailable vendor fix with an expiry date.
-- **Daily until closure:** report assessed/total, patched/affected, validated/affected, unassessed, failed tests, service disruptions and overdue exceptions. These are proposed operational targets, not vendor-mandated deadlines.
+Use [RISK_TIERS.md](RISK_TIERS.md) as the classification authority. Classify each certificate-validation path; assign the host/application the highest applicable tier and retain path-specific evidence. Apply tiers within every team queue rather than putting all internet-facing hosts first.
+
+- **T0 to 24 hours:** identify owners and provisional tiers; assess high-impact unknowns and contain Tier 1 exposure where possible.
+- **Tier 1:** target validated remediation within 48 hours.
+- **Tier 2:** target validated remediation or confirmation of existing protection within seven days.
+- **Tier 3:** scope within seven days and target validation/remediation within 14 days.
+- **Tier 4:** substantiate limited exposure within 14 days; complete applicable trust hygiene in the normal maintenance window, proposed within 30 days.
+- **Daily while Tier 1/2 work remains open:** report coverage, exposed/unknown/validated counts, exceptions and availability issues by tier. Maintain an agreed reporting cadence thereafter.
+
+These replace the earlier blanket seven-day estate target. They are proposed operational targets. Suspected exploitation or a critical certificate-related outage requires immediate response irrespective of tier. Do not defer automatic security updates while categorising assets.
+
+A serve-only internet-facing process may qualify for Tier 4; its outbound agents, proxy backend connections and deployment pipeline must be assessed independently. Internal public-trust consumers are not automatically low risk. Follow the evidence and promotion criteria in the tier guide.
 
 ## Container scanning and patching workflow
 
@@ -99,7 +107,7 @@ These options are a decision framework, not instructions already applied to the 
 
 ## Closure and exceptions
 
-Close a work package only when the inventoried scope is complete, fixes are active, affected chains are rejected by the intended verifier, and legitimate connections still work. Sampling requires a documented equivalence group (same image/runtime, configuration, identity and trust policy); do not extrapolate across different stacks.
+Close a work package only when the inventoried scope is complete and each applicable validation path has active fixes, rejects affected chains and retains normal operation, or has documented evidence of non-applicability. Tier 4 claims require the evidence specified in RISK_TIERS.md; a low tier alone is not closure. Sampling requires a documented equivalence group (same image/runtime, configuration, identity and trust policy); do not extrapolate across different stacks.
 
 Retain exceptions for unknown, offline, unsupported, blocked-from-testing and vendor-pending systems. Record the exposure, compensating control, accountable risk owner, expiry and retest date. A proxy mitigation can protect a specific route without fixing the underlying application's trust store.
 
@@ -109,7 +117,7 @@ Retain exceptions for unknown, offline, unsupported, blocked-from-testing and ve
 
 **To:** Named owner of the applicable work package above
 
-Please acknowledge ownership within one working day. Inventory the systems and application verification paths in your scope, apply applicable vendor fixes, validate rejection of affected certificate chains, and confirm normal service operation. Return the [completion record](COMPLETION_TRACKER.md) with evidence links and unresolved exceptions. Do not report completion based solely on patch installation, a browser result or a clean vulnerability scan. Escalate service disruption and confirmed exposure immediately.
+Please acknowledge ownership within one working day. Inventory the systems and application verification paths in your scope, assign and justify exposure tiers, apply applicable vendor fixes to the tier-based targets, validate rejection of affected certificate chains, and confirm normal service operation. Return the [completion record](COMPLETION_TRACKER.md) with evidence links and unresolved exceptions. Do not report completion based solely on patch installation, a browser result or a clean vulnerability scan. Escalate service disruption and confirmed exposure immediately.
 
 This brief is prepared for internal routing; it has not been sent.
 
