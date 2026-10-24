@@ -1,68 +1,42 @@
 # Response completion tracker
 
-**Initial state: not assessed.** No enterprise validation or team distribution has been performed by creating this repository.
+**24 October 2026 | Six mandatory fields**
 
-## Team routing register
+Use one record per service or managed asset group in the existing internal incident/change system. Identical deployments may share a record; distinguish material exceptions. Do not copy sensitive inventories or logs into a public repository.
 
-Replace role placeholders with actual owners and internal task links. Do not publish sensitive asset inventories, credentials or diagnostic logs in a public repository.
-
-| Work package | Named owner / deputy | Task / distribution link | Acknowledged | Due | Status |
-| --- | --- | --- | --- | --- | --- |
-| SEC | TBD | Pending | No | T0 + 24h | Not started |
-| EUC | TBD | Pending | No | Set by risk tier | Not started |
-| LNX | TBD | Pending | No | Set by risk tier | Not started |
-| WIN | TBD | Pending | No | Set by risk tier | Not started |
-| APP | TBD | Pending | No | Set by risk tier | Not started |
-| CTR | TBD | Pending | No | Set by risk tier | Not started |
-| NET | TBD | Pending | No | Set by risk tier | Not started |
-| VND | TBD | Pending | No | Set by risk tier | Not started |
-| SOC | TBD | Pending | No | Set by risk tier | Not started |
-
-## Per-application / verification-path record
-
-Copy this record into the internal incident/task system for each distinct path.
-
-| Field | Required value |
+| Mandatory field | What to provide |
 | --- | --- |
-| Asset/application and business criticality | |
-| Exposure tier (1–4), rationale, assessor and review date | |
-| TLS role: presents server cert / verifies server cert / verifies client cert / code signing | |
-| Internet/partner/internal reachability and outbound dependencies | |
-| Impact: credentials, data, privilege and downstream reach | |
-| Tier 4 evidence or promotion triggers, where applicable | |
-| Availability impact flag and separate urgency | |
-| Tier-based deadline | |
-| Team, owner, environment and scope denominator | |
-| Runtime/library/verifier and service identity | |
-| Effective store location, provenance and file hash (if applicable) | |
-| SBOM / CBOM links, collector versions and exclusions | |
-| Incident reference retrieval date/hash | |
-| Certificate SHA-256 / SPKI matches and observed roles | |
-| Effective trust purpose and distrust mechanism | |
-| emSign route test / AAA route test (separate results) | |
-| Code-signing applicability, owner and validation reference | |
-| Unsupported stores / embedded-root coverage gaps | |
-| Proxy / TLS termination route | |
-| Affected status and supporting evidence | Unknown until assessed |
-| Vendor advisory / fix applied | |
-| Remediation method: trust-data / targeted package / configuration / runtime | |
-| Retained application version and vendor support applicability | |
-| Trust-store/blocklist before-and-after hashes | |
-| Persistence/drift control and owner | |
-| Temporary remedy review/expiry and residual patch requirement | |
-| Deployed version/image digest; restart or rollout evidence | |
-| Negative tests: chains tested, exact errors and timestamps | |
-| Positive integration test | |
-| Coverage: tested replicas/configurations and equivalence basis | |
-| Evidence links (internal) and independent reviewer | |
-| Exception/control, risk owner, expiry and next test | |
-| Status | Not assessed / Exposed / Remediating / Inconclusive / Validated / Exception |
-| Closure approval and date | |
+| **1. Scope and owner** | Application/service or managed asset group, accountable owner and covered environment. |
+| **2. Tier and rationale** | Tier 1–4 and a short explanation of trust role and business impact. Unknown exposure must be labelled unknown. |
+| **3. Trust configuration** | Standard platform and assurance reference, or brief description of custom trust/uncertainty. |
+| **4. Status and action** | Closure route A/B/C; status; remedy or reason no change is needed. |
+| **5. Evidence reference** | Existing change/test/configuration record or shared platform assurance link; confirm deployment coverage and no relevant overrides when using Route A. |
+| **6. Outstanding work** | Issue, owner and agreed target date; use “None” if closed. Record discovery/assignment date and any exception review date in the linked task. |
 
-## Management report template
+## Status choices
 
-Report the following separately for each tier, with an additional availability-impact summary. Unknown exposure is not a low-risk classification.
+- **Assessing — exposure unknown**
+- **Exposed — action required**
+- **Remediating**
+- **Closed — A: covered by platform assurance**
+- **Closed — B: application-specific validation**
+- **Closed — C: not applicable to assessed role**
+- **Exception / blocked — owner and review date required**
 
-As of [timestamp]: [N/total] assets assessed; [N/affected] remediated; [N/affected] validated. [N] remain unassessed, [N] exposed, [N] inconclusive and [N] under time-limited exceptions. Critical unresolved services: [internal reference]. Service impacts: [summary]. Decisions needed: [owner, action, deadline].
+A low tier is not proof of closure. Route C requires a scoped rationale. A clean scan or generic vendor statement alone is insufficient; evidence must apply to the deployed configuration.
 
-Do not combine patch compliance and validation into one percentage. Retain the inventory date and coverage denominator so newly discovered assets are visible.
+## Example of shared evidence
+
+A platform team validates a managed runtime and trust configuration and publishes assurance record PLATFORM-123. An application owner references PLATFORM-123, links the deployment record showing the applicable configuration and confirms there is no relevant custom trust override. The application need not repeat the central certificate tests or copy certificate hashes into this tracker.
+
+## Conditional technical evidence
+
+For custom changes or uncertain behaviour, retain relevant store hashes, verifier details, test results and coverage limitations in the existing technical record. Use the [validation appendix](APPLICATION_VALIDATION.md) to select checks. These details are not additional mandatory columns. Security review is needed for disputed assurance or risk exceptions, not a second signature on every standard submission.
+
+## Coordination and reporting
+
+The response lead maps functional teams in [ACTION_PLAN.md](ACTION_PLAN.md) to actual internal owners and queues; no distribution has yet occurred.
+
+Report counts by tier and status using a defined unit (service, asset group or deployment); avoid mixing units or double-counting shared platforms. Highlight critical unresolved exposure, outages, blockers and decisions needed. Use existing deployment dashboards for fleet coverage.
+
+Daily reporting applies only to critical unresolved exposure, material blockers or outages. Other records follow agreed change cadence. Preserve existing due dates when reassigning work.
