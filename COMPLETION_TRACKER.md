@@ -38,6 +38,11 @@ Copy this record into the internal incident/task system for each distinct path.
 | Proxy / TLS termination route | |
 | Affected status and supporting evidence | Unknown until assessed |
 | Vendor advisory / fix applied | |
+| Remediation method: trust-data / targeted package / configuration / runtime | |
+| Retained application version and vendor support applicability | |
+| Trust-store/blocklist before-and-after hashes | |
+| Persistence/drift control and owner | |
+| Temporary remedy review/expiry and residual patch requirement | |
 | Deployed version/image digest; restart or rollout evidence | |
 | Negative tests: chains tested, exact errors and timestamps | |
 | Positive integration test | |
