@@ -51,6 +51,14 @@ Parse candidate stores using their supported format tools. Compare certificate S
 
 Do not blanket-delete every eMudhra or Sectigo certificate. Use vendor-specific remedies and test their availability impact. Removing a broad root may affect unrelated legitimate services, and removing only one path may leave an alternate chain trusted.
 
+### Automated collection and the AAA alternate route
+
+Use the [CBOM and cross-signing guide](CBOM_AND_CROSS_SIGNING.md) to combine package SBOMs, certificate discovery and runtime tests. CBOMkit-theia can assist X.509 discovery; Trivy/Grype package results alone do not enumerate effective trust.
+
+The same compromised key can appear in two certificates with different issuers and certificate fingerprints. Compare SPKI as well as certificate SHA-256. “AAA Certificate Services” is Sectigo's cross-signing root name, not DNS AAAA. Verify the affected chain is rejected through both emSign and AAA paths. Do not label all AAA-dependent certificates compromised.
+
+Record separate outcomes for an affected certificate found, an available trust route and a successful/failed verification. Retain unsupported store formats as unknown. Assess the affected code-signing hierarchy under code-signature policy separately; HTTPS tests do not cover that purpose.
+
 ## 4. Audit verification bypasses
 
 Inspect code and configuration for disabled certificate/hostname verification, permissive callbacks and fallback retries that suppress TLS errors. Examples worth review include verify=False, rejectUnauthorized:false, NODE_TLS_REJECT_UNAUTHORIZED=0, InsecureSkipVerify, trust-all Java managers and curl -k/--insecure. Confirm whether each is active in deployed code; a text match alone is not a finding.
