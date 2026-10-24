@@ -95,6 +95,11 @@ For restricted environments, use the reference site's [offline chain bundle](htt
 
 ## 6. Activate and verify the deployed fix
 
+A fix may be a trust-data or configuration update rather than a new application version. Follow the [remediation decision framework](ACTION_PLAN.md#remediation-without-a-full-application-upgrade). Record the effective store/blocklist hash and enforcement evidence even if package versions do not change. A scanner may continue to flag a package; retain mitigation evidence and track any remaining vendor-patch requirement separately.
+
+Specifically check that removing an intermediate does not leave it acceptable when supplied by the peer; that additive CA settings have not retained old roots; and that custom TLS contexts honour the selected store. For revocation-based remedies, verify checks of affected intermediates and test unavailable revocation-service behaviour. Do not infer protection from a configuration flag alone.
+
+
 After patching, rebuild/redeploy as needed and establish a fresh connection to avoid reusing an existing pooled TLS session. Confirm restarted processes use the new artefact and configuration. Verify all relevant replicas, sites, jobs and service identities, or document justified equivalence groups.
 
 Check certificates presented by business endpoints separately for chains affected by distrust. Perform normal integration tests after any replacement. Review mTLS client authentication separately where public CA trust is configured; do not assume a server-authentication test covers client authentication.
