@@ -28,6 +28,13 @@ Copy this record into the internal incident/task system for each distinct path.
 | Team, owner, environment and scope denominator | |
 | Runtime/library/verifier and service identity | |
 | Effective store location, provenance and file hash (if applicable) | |
+| SBOM / CBOM links, collector versions and exclusions | |
+| Incident reference retrieval date/hash | |
+| Certificate SHA-256 / SPKI matches and observed roles | |
+| Effective trust purpose and distrust mechanism | |
+| emSign route test / AAA route test (separate results) | |
+| Code-signing applicability, owner and validation reference | |
+| Unsupported stores / embedded-root coverage gaps | |
 | Proxy / TLS termination route | |
 | Affected status and supporting evidence | Unknown until assessed |
 | Vendor advisory / fix applied | |
