@@ -8,6 +8,8 @@ For each application, record the deployed executable/runtime, HTTP/TLS library, 
 
 Test distinct verification paths separately. The same host can contain an OS store, Java store, Python virtual environments, bundled browser engines and a proxy with different trust decisions. Use the running workload's configuration; a developer shell or host-level curl may select another verifier.
 
+Assign the path a [risk tier](RISK_TIERS.md) based on trust role, reachability and consequence. An inbound server certificate presentation is different from outbound server-certificate validation or inbound client-certificate authentication. An unaffected server certificate alone does not establish that the host's other clients are protected. Private-CA-only or serve-only findings need scope evidence before recording non-applicability.
+
 ## 2. Discover hidden and overridden stores
 
 The following is an investigation checklist, not an automatic verdict or instruction to delete certificates.
