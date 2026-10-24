@@ -12,12 +12,15 @@ Potential business consequences include credential or data exposure, transaction
 
 **Recommended management decision:** activate an urgent, coordinated response led by Security, with named owners across desktop, server, application, container and supplier teams. Prioritise critical external connections. Require deployment evidence and application-level validation before closure, and explicitly track unsupported or untested systems.
 
+**Cross-signing matters:** the affected keys also have Sectigo AAA Certificate Services cross-certificates. Removing only the eMudhra route may leave an accepted AAA route. This is not evidence that Sectigo's root key was compromised. Require checks of both routes and distinguish package scanning, certificate inventory and actual runtime trust. See the [tooling and cross-signing guide](CBOM_AND_CROSS_SIGNING.md) for sources and assessment criteria.
+
 ## Response pack
 
 | Document | Audience / purpose |
 | --- | --- |
 | [Team action plan](ACTION_PLAN.md) | Allocate work, proposed deadlines, distribution and management reporting |
 | [Application validation runbook](APPLICATION_VALIDATION.md) | Discover hidden trust stores and prove deployed applications reject affected chains |
+| [CBOM and cross-signing guide](CBOM_AND_CROSS_SIGNING.md) | Tool capabilities, inventory pipeline and Sectigo/AAA scope |
 | [Completion tracker](COMPLETION_TRACKER.md) | Record ownership, scope, evidence and exceptions |
 
 These are proposed response procedures, not a claim that enterprise systems have been scanned, patched or tested. Team names are functional roles; the response lead must map them to actual owners. No messages have been sent to teams.
