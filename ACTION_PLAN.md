@@ -34,6 +34,16 @@ Security should establish one parent incident/change record and route the work p
 5. Deploy new digests and restart affected processes. Confirm the old replicas are gone and mounts/init scripts have not restored stale stores. A debug sidecar's curl test proves only that sidecar's verifier.
 6. Test the application path, plus normal integrations. Address old rollback images and deployment templates so a rollback or scale-out cannot silently restore exposure.
 
+## Additional work packages: certificate inventory and alternate trust paths
+
+- **DevSecOps with PKI:** retain Trivy or Syft/Grype for package analysis; pilot CBOMkit-theia or an equivalent certificate collector. Do not treat ordinary CycloneDX SBOM output as a complete CBOM. Use the [tooling guide](CBOM_AND_CROSS_SIGNING.md).
+- **Application, Linux and Windows owners:** collect effective stores separately from package inventories. Record mounted/overridden stores, unsupported formats and active distrust policies. Join certificate and SPKI matches to actual application identities.
+- **PKI and Security:** maintain dated affected-certificate/key references, including Sectigo AAA cross-signs. An AAA anchor present in a store is a triage signal, not proof of vulnerability. Require both emSign and AAA-route tests before closure.
+- **Endpoint security / software distribution:** assess code-signing validation separately from TLS, including relevant platform protections and supplier evidence. Assign a named owner under EUC or APP; document non-applicability where justified.
+- **Response lead:** report certificate-inventory coverage and runtime validation separately. Do not defer urgent vendor remediation while selecting a CBOM tool.
+
+Sectigo reports revocation of the affected cross-certificates and no compromise of its own systems or keys. Its [advisory](https://www.sectigo.com/resource-library/advisory-on-compromised-emudhra-intermediate-certificates) does not remove the need to validate clients that may not consume revocation information.
+
 ## Closure and exceptions
 
 Close a work package only when the inventoried scope is complete, fixes are active, affected chains are rejected by the intended verifier, and legitimate connections still work. Sampling requires a documented equivalence group (same image/runtime, configuration, identity and trust policy); do not extrapolate across different stacks.
