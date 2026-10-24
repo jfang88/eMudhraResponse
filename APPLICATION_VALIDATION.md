@@ -108,6 +108,8 @@ For restricted environments, use the reference site's [offline chain bundle](htt
 
 ## 6. Activate and verify the deployed fix
 
+For implementation examples that retain the current application/runtime where feasible, use the [older-stack remediation recipes](REMEDIATION_OPTIONS.md#practical-recipes-for-older-application-stacks). They cover Java/JDK stores and vendor blocklists, Node CA selection and agents, Python virtual environments/Requests/SSL contexts, Windows/.NET, Linux and other consumers. Select the applicable recipe; these are not additional universal closure requirements.
+
 A fix may be a trust-data or configuration update rather than a new application version. Follow the [remediation decision framework](ACTION_PLAN.md#remediation-without-a-full-application-upgrade). For custom trust-data changes, retaining a store/blocklist hash can help establish what changed. Standard-platform consumers should reference the shared assurance/change record instead of collecting their own hashes. A scanner may continue to flag a package; retain mitigation evidence and track any remaining vendor-patch requirement separately.
 
 Specifically check that removing an intermediate does not leave it acceptable when supplied by the peer; that additive CA settings have not retained old roots; and that custom TLS contexts honour the selected store. For revocation-based remedies, verify checks of affected intermediates and test unavailable revocation-service behaviour. Do not infer protection from a configuration flag alone.
