@@ -1,10 +1,21 @@
-# Application validation: find affected trust and prove remediation
+# Application validation — specialist appendix
 
-**24 October 2026 | Recommended operational runbook**
+**24 October 2026 | Selective reference, not a universal checklist**
+
+## When to use this appendix
+
+Use these checks for central platform assurance and Route B: custom stores, uncertain behaviour or critical paths not adequately covered by shared evidence. The [action plan](ACTION_PLAN.md) defines closure; this appendix does not add mandatory requirements to Route A or C.
+
+Select checks that address the identified uncertainty. Equivalent configurations may share evidence. Do not require each application to create a harness, inventory every certificate, audit all source code or test every endpoint.
+
+Security/PKI owns the current affected-certificate reference and approved test matrix. Standard remediation patterns should cover both emSign and AAA routes centrally. Teams can reference that assessment and deployment coverage. A materially different verifier, mount, trust override or validation route requires additional scoped checks.
+
+No production internet access is required solely for the external checker. Use offline validation or a representative environment with documented equivalence. Product/version-specific vendor evidence may support closure where direct testing is impractical; record deployment/applicability and limitations, and have Security accept residual uncertainty. Network failure alone remains inconclusive.
+
 
 ## 1. Define the verification path
 
-For each application, record the deployed executable/runtime, HTTP/TLS library, service identity, environment, image digest, network route and effective trust configuration. Cover outbound APIs, webhooks, package downloads, scheduled jobs and relevant backend TLS connections. A server's own certificate inventory is a separate check: it does not reveal what that server trusts as a client.
+For the selected configuration under investigation, identify the deployed executable/runtime, HTTP/TLS library, service identity, environment, image digest, network route and effective trust configuration. Cover outbound APIs, webhooks, package downloads, scheduled jobs and relevant backend TLS connections. A server's own certificate inventory is a separate check: it does not reveal what that server trusts as a client.
 
 Test distinct verification paths separately. The same host can contain an OS store, Java store, Python virtual environments, bundled browser engines and a proxy with different trust decisions. Use the running workload's configuration; a developer shell or host-level curl may select another verifier.
 
@@ -45,7 +56,7 @@ The second command applies only if certifi is installed. Neither command proves 
 
 ## 3. Compare certificate identities and effective trust
 
-Obtain the current [affected intermediates and cross-signs](https://emudhra.we-have-a-problem.com/impacted-intermediates.json) and [root reference](https://emudhra.we-have-a-problem.com/roots.json). Preserve the reference retrieval date and a hash of the copy used for assessment.
+Use Security/PKI's dated reference, or obtain the current [affected intermediates and cross-signs](https://emudhra.we-have-a-problem.com/impacted-intermediates.json) and [root reference](https://emudhra.we-have-a-problem.com/roots.json). Preserve the reference retrieval date and a hash of the copy used for assessment.
 
 Parse candidate stores using their supported format tools. Compare certificate SHA-256 fingerprints and, where supported, public-key/SPKI identities against the affected set. Subject-name searches help discovery but are insufficient for a decision. Different certificates can share a subject; cross-signed certificates can share a key.
 
@@ -55,7 +66,7 @@ Do not blanket-delete every eMudhra or Sectigo certificate. Use vendor-specific 
 
 ### Automated collection and the AAA alternate route
 
-Use the [CBOM and cross-signing guide](CBOM_AND_CROSS_SIGNING.md) to combine package SBOMs, certificate discovery and runtime tests. CBOMkit-theia can assist X.509 discovery; Trivy/Grype package results alone do not enumerate effective trust.
+If deeper discovery is needed, consult the optional [CBOM and cross-signing guide](CBOM_AND_CROSS_SIGNING.md). CBOM generation is not required for incident closure. CBOMkit-theia can assist X.509 discovery; Trivy/Grype package results alone do not enumerate effective trust.
 
 The same compromised key can appear in two certificates with different issuers and certificate fingerprints. Compare SPKI as well as certificate SHA-256. “AAA Certificate Services” is Sectigo's cross-signing root name, not DNS AAAA. Verify the affected chain is rejected through both emSign and AAA paths. Do not label all AAA-dependent certificates compromised.
 
@@ -97,20 +108,22 @@ For restricted environments, use the reference site's [offline chain bundle](htt
 
 ## 6. Activate and verify the deployed fix
 
-A fix may be a trust-data or configuration update rather than a new application version. Follow the [remediation decision framework](ACTION_PLAN.md#remediation-without-a-full-application-upgrade). Record the effective store/blocklist hash and enforcement evidence even if package versions do not change. A scanner may continue to flag a package; retain mitigation evidence and track any remaining vendor-patch requirement separately.
+A fix may be a trust-data or configuration update rather than a new application version. Follow the [remediation decision framework](ACTION_PLAN.md#remediation-without-a-full-application-upgrade). For custom trust-data changes, retaining a store/blocklist hash can help establish what changed. Standard-platform consumers should reference the shared assurance/change record instead of collecting their own hashes. A scanner may continue to flag a package; retain mitigation evidence and track any remaining vendor-patch requirement separately.
 
 Specifically check that removing an intermediate does not leave it acceptable when supplied by the peer; that additive CA settings have not retained old roots; and that custom TLS contexts honour the selected store. For revocation-based remedies, verify checks of affected intermediates and test unavailable revocation-service behaviour. Do not infer protection from a configuration flag alone.
 
 
-After patching, rebuild/redeploy as needed and establish a fresh connection to avoid reusing an existing pooled TLS session. Confirm restarted processes use the new artefact and configuration. Verify all relevant replicas, sites, jobs and service identities, or document justified equivalence groups.
+After patching, rebuild/redeploy as needed and establish a fresh connection to avoid reusing an existing pooled TLS session. Confirm restarted processes use the new artefact and configuration. Use deployment evidence to establish coverage of equivalent replicas, sites and jobs. Repeat behavioural tests only for material configuration or identity-policy differences.
 
 Check certificates presented by business endpoints separately for chains affected by distrust. Perform normal integration tests after any replacement. Review mTLS client authentication separately where public CA trust is configured; do not assume a server-authentication test covers client authentication.
 
 ## 7. Evidence and acceptance
 
-Record application/asset ID, owner, timestamp, deployed digest/version, verifier, trust-store location and SHA-256 hash where file-backed, effective policy, proxy route, test chains, exact errors, positive control, scope and reviewer.
+Return the [six-field record](COMPLETION_TRACKER.md), linking existing technical evidence. For Route B, record the relevant verifier/configuration, test time and results, positive integration check and coverage limitations in that technical record. Certificate fingerprints, SPKI hashes and store hashes are conditional diagnostics, not mandatory fields for all applications.
 
-Close only after inventory, deployment and behavioural evidence agree. A certificate expiry scanner, SBOM, package version or absence of a known name is supporting evidence, not standalone proof. Keep unexplained results open.
+A platform assurance record can cover many equivalent applications; retain its applicability and deployment coverage. Do not require an independent reviewer for every standard submission. Security resolves ambiguous results and risk exceptions.
+
+Close through Route A, B or C under the action plan. Package versions or scans alone are not complete assurance, but may establish deployment coverage when linked to a centrally validated pattern. Keep material unexplained gaps open.
 
 ## References
 
