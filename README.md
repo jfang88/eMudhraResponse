@@ -14,6 +14,8 @@ Potential business consequences include credential or data exposure, transaction
 
 **Cross-signing matters:** the affected keys also have Sectigo AAA Certificate Services cross-certificates. Removing only the eMudhra route may leave an accepted AAA route. This is not evidence that Sectigo's root key was compromised. Require checks of both routes and distinguish package scanning, certificate inventory and actual runtime trust. See the [tooling and cross-signing guide](CBOM_AND_CROSS_SIGNING.md) for sources and assessment criteria.
 
+**Application upgrades are not always required.** The plan now permits vendor trust-data/blocklist updates, targeted CA-package fixes and validated configuration changes while retaining the application version. Some embedded verifiers still require a patch or rebuild. See [remediation without a full upgrade](ACTION_PLAN.md#remediation-without-a-full-application-upgrade).
+
 ## Response pack
 
 | Document | Audience / purpose |
