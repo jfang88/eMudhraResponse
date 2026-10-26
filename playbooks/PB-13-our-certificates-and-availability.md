@@ -9,7 +9,7 @@
 - Or **we call** partner or supplier endpoints whose certificates chain to
   emSign roots. These break when our trust stores remove those roots.
 
-This is an **availability** track, separate from the security tiers. A
+This is an **availability** track, separate from security priority. A
 certificate *issued to us* by eMudhra is not compromised by this incident. It
 will simply stop being trusted as roots are removed.
 
@@ -87,3 +87,19 @@ with **Availability flag = Yes** until replaced.
   can't be replaced by 27 Oct.
 - A critical partner can't change its certificate, and the only workaround
   would restore broad trust.
+
+## References
+
+**Related documents**
+
+- [Team guide](README.md)
+- [Action plan §7: availability track](../ACTION_PLAN.md#7-availability-track-tuesday-27-october)
+- [Decisions D-04 and D-05](../ACTION_PLAN.md#appendix-a-decision-register)
+
+**External sources**
+
+- [Google Security Blog: protecting Chrome and Android users from compromised eMudhra intermediates](https://blog.google/security/protecting-chrome-and-android-users-from-compromised-emudhra-intermediate-ca-certificates/)
+- [PyPI: certifi release history](https://pypi.org/project/certifi/#history)
+- [crates.io: webpki-roots versions](https://crates.io/crates/webpki-roots/versions)
+- [Launchpad: Ubuntu ca-certificates bug 2171507](https://bugs.launchpad.net/ubuntu/+source/ca-certificates/+bug/2171507)
+- [crt.sh Certificate Transparency search](https://crt.sh/)

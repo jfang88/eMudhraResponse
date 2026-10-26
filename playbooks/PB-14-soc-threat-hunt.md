@@ -4,9 +4,8 @@
 
 ## Applies if
 
-Always. This playbook replaces "no mandatory historical investigation for every
-application" with a **small, targeted hunt** that is cheap because of one
-fact. eMudhra states the affected intermediates issued no end-entity
+Always. This is a **small, targeted hunt**, not a historical investigation of
+every application. It is cheap because of one fact. eMudhra states the affected intermediates issued no end-entity
 certificates, so **any certificate chaining to them, outside known research
 and test hosts, is presumptively forged**.
 
@@ -65,3 +64,20 @@ retention gap per source is the documented limitation.
 
 - Any confirmed hit remains after triage steps 1 and 2.
 - A data source needed for a P1 hunt has no retention for the period.
+
+## References
+
+**Related documents**
+
+- [Team guide](README.md)
+- [Action plan §8: retrospective hunt](../ACTION_PLAN.md#8-retrospective-hunt)
+- [Decisions D-08 and D-11](../ACTION_PLAN.md#appendix-a-decision-register)
+
+**External sources**
+
+- [BleepingComputer: Mozilla, Google, Apple block compromised eMudhra CA certificates](https://bleepingcomputer.com/news/security/mozilla-google-apple-block-compromised-emudhra-ca-certificates)
+- [iTnews: Cloudflare warns fixing eMudhra certs goes beyond browsers](https://www.itnews.com.au/news/cloudflare-warns-fixing-botched-emudhra-certs-goes-beyond-browsers-629804)
+- [Google Security Blog: protecting Chrome and Android users from compromised eMudhra intermediates](https://blog.google/security/protecting-chrome-and-android-users-from-compromised-emudhra-intermediate-ca-certificates/)
+- [Microsoft Defender: DeviceFileCertificateInfo table](https://learn.microsoft.com/en-us/defender-xdr/advanced-hunting-devicefilecertificateinfo-table)
+- [Zeek: x509.log](https://docs.zeek.org/en/master/logs/x509.html)
+- [crt.sh Certificate Transparency search](https://crt.sh/)

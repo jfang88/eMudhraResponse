@@ -1,54 +1,191 @@
-# Risk tiers for the eMudhra response
+# Prioritisation: impact and verifier susceptibility
 
-**24 October 2026 | Proposed enterprise triage model, not a vendor severity rating**
+**Version 2 · 26 October 2026 · Proposed enterprise triage model, not a vendor severity rating · Approval: decision D-01 ([Action plan, Appendix A](ACTION_PLAN.md#appendix-a-decision-register))**
 
-## Management principle
+## 1. Management principle
 
-Rank the affected **service or shared component** by its certificate-validation role. Use the highest unresolved exposure for management escalation, while keeping remediation and evidence scoped to the relevant component. A critical agent does not automatically impose Tier 1 testing on unrelated applications on the same host. Internet exposure alone does not determine priority. The decisive questions are whether the system accepts the affected trust chains, what an attacker could impersonate, and the business consequence.
+Rank each **service or shared component** by what it does with certificates
+and what an attacker could do with a forged one. Internet exposure alone does
+not decide priority. A public website presenting its own certificate is not
+the risk. An internal batch server sending customer data to a SaaS API can be.
 
-A server presenting an unaffected certificate to visitors does not use its own public CA bundle to authenticate those visitors in ordinary one-way HTTPS. It can therefore have lower direct exposure to this incident than an internal server calling external APIs. However, an attacker could still impersonate that website to a vulnerable client, even if the real site's certificate comes from another CA. Server posture and client protection are separate.
+Priority comes from two questions answered separately:
 
-For TLS impersonation, an attacker generally needs a way to intercept or redirect the victim's connection; possession of a CA key does not itself grant network access. For client-certificate authentication, an attacker can connect directly, but exploitation depends on the accepted certificate purpose, chain policy and identity/authorisation mapping.
+1. **Impact.** If this verifier accepted a forged certificate, what could an
+   attacker impersonate, read, change or run?
+2. **Verifier susceptibility.** Would this verifier, as deployed today,
+   actually accept a chain through the affected keys?
 
-## Ordered tiers
+For this incident the second question decides almost everything. Browsers and
+OS trust stores were protected by their vendors on 17–20 October. Software that
+carries its own trust list was not. Ranking by impact alone would put
+already-protected desktops ahead of exposed server-side clients.
 
-Unassessed systems have **unknown exposure**. Prioritise assessment using trust role and business impact; do not report unknown systems as confirmed vulnerable. The categories below guide sequencing, not proof requirements.
+Keep remediation and evidence scoped to the component. A critical agent on a
+host does not impose P1 testing on unrelated applications on the same host.
+Use the highest unresolved priority for management escalation.
 
-| Tier | Context and typical systems | Why this order / conditions | Response approach |
-| --- | --- | --- | --- |
-| **1 — Critical trust exposure** | High-impact systems validating certificates across an external or lower-trust boundary: payment/customer-data APIs, identity integrations, privileged automation, software-update/build pipelines and shared egress proxies. Internet-facing mTLS services where affected chains could satisfy the actual client-authentication policy. | Credentials, sensitive data, privileged actions or many downstream systems could be affected. These systems may be internet-facing OR internal servers with outbound access. Privileged desktops with exposed tooling can also qualify. | Assess promptly and contain credible critical exposure through the incident process; agree remediation dates with the service owner. |
-| **2 — Broad internet client exposure** | General-purpose internet-accessing desktops/browsers, Electron apps, developer tools and ordinary outbound API clients. Internet-facing applications making non-critical external TLS calls. | Frequent external connections and many possible destinations. Browser protection must be verified; non-browser software on the same desktop remains separate. Promote to Tier 1 for high-impact credentials, build privileges or sensitive transactions. | Confirm protection using shared platform assurance where applicable; agree dates for unresolved exposure and continue automated updates. |
-| **3 — Internal certificate-dependent systems** | Internal-only service-to-service connections that still use public CA trust or an unverified/mixed trust store; internal proxies and application-to-backend TLS. | Usually fewer external attack opportunities, but insiders, compromised hosts or routing/DNS manipulation can enable impersonation. Internal location is not proof of protection. Promote to Tier 1 or 2 where impact, lower-trust networks or attacker access warrants it. | Use existing change processes and an agreed date proportionate to exposure and impact. |
-| **4 — Demonstrably limited direct exposure** | Serve-only websites with an unaffected presented chain, no relevant outbound certificate validation and no affected client-certificate trust. Internal systems demonstrably restricted to an unaffected private CA hierarchy, with no affected public-trust fallback. | Low direct exposure for the assessed role. Requires evidence; “we do not buy eMudhra certificates” is insufficient. Visitors or other consumers may still be vulnerable independently. | Close through Route C where non-applicability is supported; no incident-specific change required. Otherwise schedule applicable work normally. |
+**How an attacker uses a forged certificate.** To impersonate a server, the
+attacker needs to intercept or redirect the victim's connection (DNS,
+routing, proxy or local network position). For inbound client-certificate
+authentication (mTLS), the attacker can connect directly; exploitation then
+depends on the accepted certificate purpose, chain policy and identity
+mapping.
 
-This pack sets no independently approved SLA. Record agreed dates and newly discovered findings without resetting existing overdue work. Evidence of exploitation or a critical outage triggers immediate incident response regardless of tier.
+## 2. Axis 1: impact
 
-## Classify these common cases
+| Impact | Definition | Typical paths |
+|---|---|---|
+| **H** | A forged certificate could expose credentials or sensitive or regulated data, enable privileged actions or code execution, or affect many downstream systems | Payment and customer-data APIs; identity integrations (OIDC/JWKS, SAML metadata, token endpoints); privileged automation; software-update, build and artifact pipelines; TLS-inspection and egress proxies; internet-facing mTLS; code signing and application control; admin and developer tooling holding cloud credentials or signing keys |
+| **M** | Business data or service integrity affected, with limited blast radius | General outbound API clients; internal service-to-service TLS that accepts public roots; internal proxies and application-to-backend TLS; general-purpose desktops |
+| **L** | Low consequence, or a demonstrably limited role | Serve-only websites with no relevant outbound validation or client-certificate trust; internal systems restricted to an unaffected private CA with no public-root fallback |
 
-| Scenario | Initial tier / treatment |
-| --- | --- |
-| Public static website; unaffected server certificate; no outbound application calls or mTLS | Tier 4 for the serving process after evidence review. Assess host agents, updates and deployment pipeline separately. |
-| Public website calls an external payment or identity API | Tier 1 for those high-impact outbound paths, regardless of who issued the website's certificate. |
-| Internal batch server sends customer data to a SaaS API | Tier 1; lack of inbound internet exposure does not reduce this outbound trust risk. |
-| Internal low-impact service calls only managed internal endpoints but accepts public roots | Tier 3 initially; evaluate segmentation and consequences. |
-| Internal service trusts only a dedicated unaffected private CA | Tier 4 after verifying no public-root fallback, alternate verifier or relevant external dependency. |
-| Ordinary user browsing the internet | Tier 2 assessment; verified browser protections can close that path. A separate desktop agent or bundled client may remain unresolved. |
-| Developer/admin workstation downloads software or uses privileged cloud credentials through an affected client | Tier 1 for that high-impact path; classify the remaining desktop paths separately. |
-| Reverse proxy serves users and opens TLS to backends | Classify both legs. Its server certificate alone cannot determine the risk of backend certificate validation. |
-| Container with no listening internet port but outbound external API calls | Tier 1 or 2 by impact. Image packaging does not determine tier. |
+Internal location is not proof of protection. Insiders, compromised hosts and
+DNS or routing manipulation can enable impersonation. Raise impact where lower-trust
+networks or attacker access make it more likely.
 
-## Proportionate evidence for Tier 4
+**Records created under version 1 tiers:** Tier 1 → H; Tier 2 and 3 → M (or H
+if a promotion condition applied); Tier 4 → L.
 
-A short owner statement supported by existing configuration or architecture evidence is sufficient for Route C. State the assessed role: for example, serve-only with no relevant outbound/client-certificate validation, or private-CA-only with no public-trust fallback. Do not require a new exhaustive dependency map to prove a negative.
+## 3. Axis 2: verifier susceptibility
 
-Use known dependencies and existing records to identify material exceptions. Refer shared host agents, update services, sidecars and deployment tooling to their accountable platform owners rather than duplicating their assessment. If a relevant dependency or fallback is uncertain, keep that part open and investigate proportionately; do not use uncertainty as evidence of non-applicability.
+Identify the verifier that actually makes the trust decision: runtime, TLS
+library and effective trust store, under the service identity. A host can have
+several (OS store, Java store, Python virtual environments, a bundled browser
+engine, a proxy).
 
-## Exposure tier and remediation status are different fields
+| Code | Verifier type | Examples | Status |
+|---|---|---|---|
+| **A** | Vendor-pushed block, or Certificate Transparency enforced | Chrome, Edge, Firefox, Safari; Windows and Apple trust stores updated by the vendor; Android with Google Play services | Protected, **subject to the [browser and desktop proviso](ACTION_PLAN.md#5-phase-1-browser-and-desktop-proviso)**. Confirm coverage |
+| **B** | Uses the OS store; an update exists but isn't yet confirmed | .NET on Windows, curl, PHP, Ruby, Go on Linux using system roots, Python `ssl` defaults | Protected once the OS update is confirmed on that host |
+| **C** | Own bundle or compiled roots | Java `cacerts`, Python certifi, Node built-in roots, Go and Rust binaries with embedded roots, container images | Exposed until the bundle is updated or the binary or image is rebuilt |
+| **D** | Embedded, appliance or vendor-controlled; no fix yet | Appliances, agents, packaged products with embedded runtimes, OT/IoT, SaaS | Exposed until the vendor fixes it; compensating control needed meanwhile |
+| **Unknown** | Not yet assessed | — | Assess at the priority shown in the matrix. Unknown is not low |
 
-Record tier and status separately in the six-field tracker; keep supporting context in the referenced existing record. A protected browser can remain in the Tier 2 asset class with status **Validated**; it does not require emergency remediation simply because it accesses the internet. Unknown is not Low. “Certificate found” is not proof of exploitability, and a clean package scan is not proof of protection.
+**The TLS-inspection proxy is the verifier for every client behind it.**
+Clients, browsers included, see only the proxy's re-signed certificate, so
+vendor browser blocks don't apply to inspected traffic. Classify inspected
+paths by the proxy's susceptibility, and treat the proxy itself as H.
 
-Retain a separate **availability flag** for business certificates chaining to distrusted roots or services broken by root removal. A critical outage warrants urgent action even if confidentiality exposure is low. This incident's tiers do not replace general internet-facing vulnerability priorities.
+**Where the Sectigo AAA route still matters.** The affected keys also have
+AAA Certificate Services cross-certificates. Current Mozilla-derived bundles
+(for example certifi and Ubuntu's `ca-certificates`) no longer trust AAA for
+TLS. Windows, Java and older or vendor-modified bundles may still trust it.
+Test both routes there. See
+[CBOM and cross-signing](CBOM_AND_CROSS_SIGNING.md#sectigo--aaa-relevant-but-not-a-sectigo-root-key-compromise).
 
-## Basis and limitations
+## 4. Priority matrix
 
-The tier model is an enterprise assessment derived from the authentication risks described by [Mozilla](https://blog.mozilla.org/security/2026/10/20/protecting-firefox-users-following-the-compromise-of-emudhra-intermediate-certificates/) and [Cloudflare](https://blog.cloudflare.com/emudhra-certificate-compromise/). Neither source assigns these enterprise tiers. The [action plan](ACTION_PLAN.md) allows shared platform assurance, targeted application validation or supported non-applicability. Central assurance must address both emSign and AAA routes; equivalent applications can reference it without repeating tests. Use the [smallest effective supported remedy](ACTION_PLAN.md#remediation-without-a-full-application-upgrade); tiering does not require a full application upgrade.
+| Impact ↓ / Susceptibility → | A | B | C | D | Unknown |
+|---|---|---|---|---|---|
+| **H** | P3: confirm coverage | **P1** | **P1** | **P1** + exception and compensating control | **P1 to assess** |
+| **M** | P4: confirm coverage | P2 | P2 | P2 + vendor tracking | P2 to assess |
+| **L** | P4 | P3 | P3 | P3 + vendor tracking | P3 to assess |
+
+**Indicative target windows** (from discovery or assignment; approval is
+decision D-03):
+
+| Priority | Window |
+|---|---|
+| P1 | Contain within 72 hours; close or except within 7 days |
+| P2 | Close or except within 14 days |
+| P3 | Close within 30 days |
+| P4 | Confirm in the normal cycle |
+
+Suspected exploitation or a critical outage triggers the incident process
+immediately, whatever the priority. Dates agreed through change control may
+differ from the window; record the reason. Reassigned work keeps its original
+date.
+
+## 5. Fix first: paths that turn a forged certificate into something worse
+
+Treat these as **P1** wherever the verifier is not yet confirmed (B, C, D or
+Unknown):
+
+| Path | Why | Playbook |
+|---|---|---|
+| TLS-inspection and egress proxies | Decide trust for every client behind them | [PB-09](playbooks/PB-09-proxies-gateways-and-tls-inspection.md) |
+| Identity integrations: OIDC discovery/JWKS, SAML metadata, OAuth token endpoints | A forged JWKS endpoint lets an attacker mint tokens your API accepts; token calls carry secrets | [PB-16](playbooks/PB-16-identity-and-mtls.md) |
+| Build pipelines and artifact proxies (Artifactory, Nexus) | A forged certificate becomes code execution in every build | [PB-08](playbooks/PB-08-containers-kubernetes-and-cicd.md) |
+| Payment and customer-data APIs | Sensitive data over outbound calls from Java, Python, Node and Go services | [PB-04](playbooks/PB-04-java.md) to [PB-07](playbooks/PB-07-go-rust-php-ruby.md) |
+| Inbound mTLS trusting public roots | No interception needed: the attacker connects directly | [PB-16](playbooks/PB-16-identity-and-mtls.md) |
+| Code signing and application control | Publisher-name rules could accept forged signatures while Windows trusted the chain | [PB-12](playbooks/PB-12-code-signing-and-application-control.md) |
+| Admin and developer workstations | CLI tools and SDKs with cloud credentials or signing keys sit outside the browser proviso | [PB-01](playbooks/PB-01-browsers-and-desktop-os.md) |
+
+## 6. Classify these common cases
+
+| Scenario | Impact | Susceptibility | Priority and treatment |
+|---|---|---|---|
+| Managed browser, ordinary internet use, not TLS-inspected | M | A | **P4**. Closes under the browser and desktop proviso |
+| Managed browser behind a TLS-inspection proxy | M | Proxy's | Inherits the proxy's priority; fix the proxy (PB-09) |
+| Public static website; unaffected server certificate; no outbound calls or mTLS | L | — | Route C for the serving process after evidence review. Assess host agents, updates and the deployment pipeline separately |
+| Public website whose own certificate chains to emSign ECC Root CA - G3 | L (security) | — | **Availability flag = Y**. Replace the certificate before or soon after 27 Oct ([PB-13](playbooks/PB-13-our-certificates-and-availability.md)) |
+| Public website calling an external payment or identity API | H | Usually C | **P1** for those outbound paths, whoever issued the website's certificate |
+| Internal batch server sending customer data to a SaaS API | H | C (e.g. Java or Python bundle) | **P1**. No inbound exposure doesn't reduce outbound trust risk |
+| API validating JWTs from an external IdP | H | B or C | **P1**. Fix the runtime the identity library uses to fetch JWKS |
+| Self-hosted artifact proxy fetching from public registries | H | C (usually Java) | **P1**. Chokepoint for every build |
+| Internal low-impact service using a patched OS store and accepting public roots | M | B | **P2** until the OS update is confirmed, then close via the platform record |
+| Internal low-impact service on a bundled or compiled store | M | C | **P2** |
+| Internal service trusting only a dedicated unaffected private CA | L | — | Route C after verifying no public-root fallback, alternate verifier or external dependency |
+| Developer or admin workstation using CLI tools with privileged cloud credentials | H | C | **P1** for those tools; the browser on the same device is P4 |
+| Reverse proxy serving users and opening TLS to backends | Per leg | Per leg | Classify the front and back legs separately. The server certificate says nothing about backend validation |
+| Container with no listening port but outbound external API calls | By data | Usually C | Image packaging doesn't set impact; the bundle inside it sets susceptibility |
+| Endpoint estate with publisher-rule application control | H | Windows distrust status | **P1** for the policy owner (PB-12) |
+| Vendor appliance making outbound update or cloud calls, no fix yet | By function | D | Exception with compensating control; track the vendor ETA (PB-11) |
+
+## 7. Flags that sit beside priority
+
+These are tracked in the same record but are **not** priorities:
+
+- **Availability flag.** Set when the service presents, or depends on,
+  certificates chaining to emSign roots that are being removed (Chrome on 27
+  October; Mozilla-derived bundles). An outage can be urgent even when
+  confidentiality exposure is low. See the
+  [availability track](ACTION_PLAN.md#7-availability-track-tuesday-27-october).
+- **Code-signing relevance.** Set when the component verifies Windows code
+  signatures or enforces publisher-based application control. HTTPS tests
+  don't cover this purpose.
+
+## 8. Proportionate evidence for non-applicability
+
+A short owner statement supported by existing configuration or architecture
+evidence is enough for Route C. State the assessed role: serve-only with no
+relevant outbound or client-certificate validation, or private-CA-only with no
+public-trust fallback. "We don't buy eMudhra certificates" is not a reason.
+Don't require a new exhaustive dependency map to prove a negative.
+
+Refer shared host agents, update services, sidecars and deployment tooling to
+their accountable platform owners rather than duplicating their assessment. If
+a dependency or fallback is uncertain, keep that part open. Uncertainty is not
+evidence of non-applicability.
+
+## 9. Priority, exposure and status are different fields
+
+Record impact, susceptibility, priority and status separately in the
+[completion tracker](COMPLETION_TRACKER.md). A protected browser is P4 with
+status *Closed — A*. It doesn't need emergency remediation because it reaches
+the internet. Unknown is not low. "Certificate found" is not proof of
+exploitability, and a clean package scan is not proof of protection.
+
+This incident's priorities don't replace general vulnerability priorities for
+internet-facing systems.
+
+## References
+
+**Related documents**
+
+- [Action plan](ACTION_PLAN.md): browser and desktop proviso, long tail, availability track, decision register
+- [Completion tracker](COMPLETION_TRACKER.md): fields for impact, susceptibility and priority
+- [Playbooks](playbooks/README.md): per-team and per-stack remediation
+- [CBOM and cross-signing](CBOM_AND_CROSS_SIGNING.md): the AAA cross-sign route
+
+**External sources**
+
+1. Mozilla: [Protecting Firefox users following the compromise of eMudhra intermediate certificates](https://blog.mozilla.org/security/2026/10/20/protecting-firefox-users-following-the-compromise-of-emudhra-intermediate-certificates/)
+2. Cloudflare: [8 eMudhra certificates are compromised. Here's what you need to know](https://blog.cloudflare.com/emudhra-certificate-compromise/)
+3. Google Security Blog: [Protecting Chrome and Android users from compromised eMudhra intermediate CA certificates](https://blog.google/security/protecting-chrome-and-android-users-from-compromised-emudhra-intermediate-ca-certificates/)
+4. oss-security: [AAA Certificate Services trust bit discussion, 21 Oct 2026](https://openwall.com/lists/oss-security/2026/10/21/4)
+
+Neither Mozilla, Cloudflare nor Google assigns these enterprise priorities.
+The model is an enterprise assessment derived from the authentication risks
+they describe.

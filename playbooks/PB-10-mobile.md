@@ -61,3 +61,18 @@ stack. Expect a TLS failure. Then run a normal login and API call.
 - An in-house app that handles credentials or payments bundles the affected
   root, or trusts everything.
 - A device class without Play services has no OEM fix.
+
+## References
+
+**Related documents**
+
+- [Team guide](README.md)
+- [Action plan §5: browser and desktop proviso](../ACTION_PLAN.md#5-phase-1-browser-and-desktop-proviso)
+- [Decision D-15 (in-house mobile apps)](../ACTION_PLAN.md#appendix-a-decision-register)
+
+**External sources**
+
+- [Technobezz: Android protection via Google Play services](https://www.technobezz.com/news/google-blocks-compromised-emudhra-keys-chrome-android)
+- [Google Security Blog: protecting Chrome and Android users from compromised eMudhra intermediates](https://blog.google/security/protecting-chrome-and-android-users-from-compromised-emudhra-intermediate-ca-certificates/)
+- [BleepingComputer: Mozilla, Google, Apple block compromised eMudhra CA certificates](https://bleepingcomputer.com/news/security/mozilla-google-apple-block-compromised-emudhra-ca-certificates)
+- [Android: network security configuration](https://developer.android.com/privacy-and-security/security-config)

@@ -1,22 +1,88 @@
-# eMudhra response playbooks: start here
+# Team guide: eMudhra response (start here)
 
-**Version 0.1.0 · 26 October 2026 · Proposed procedures, not executed changes**
+**Version 2 · 26 October 2026 · For application owners, developers, IT platform and support teams**
 
-Find your playbook below, run its *Applies if* test, and follow it. Each playbook
-has the same six headings:
+This is the one document to send to delivery teams. It tells you what has
+happened, what to do, what to return and by when, and where to find the
+steps for your technology.
 
-1. **Applies if**: a yes/no test. If nothing applies, record Route C with the reason.
-2. **Fix**: options in order of preference. Use the first one that works for you.
-3. **Verify**: prove the fix is active in the running workload.
-4. **Record**: what to put in the six-field tracker (workbook sheet *Service tracker*).
-5. **Watch out for**: the mistakes we expect.
-6. **Escalate when**: when to stop and call Security/PKI or the incident lead.
+## What has happened
 
-Every team should read [PB-00 Test and evidence](PB-00-test-and-evidence.md) once.
+Eight eMudhra intermediate CA keys were weak from generation in April 2025
+and can be recovered by anyone. With them, an attacker can forge TLS
+certificates (six keys) or Windows code signatures (two keys) that
+unprotected software accepts. **Browsers and OS trust stores were protected
+by their vendors on 17–20 October. Software that keeps its own trust list
+was not:** Java, Python, Node, Go and Rust applications, containers, build
+pipelines, appliances and agents. Your job is to find out which of your
+services are in that group, fix them, and record the result.
 
----
+Separately, Chrome stops trusting **emSign ECC Root CA - G3** on **Tuesday 27
+October 2026**. Any of our certificates under that root must be replaced
+([PB-13](PB-13-our-certificates-and-availability.md)).
 
-## Find it by team
+## What you need to do
+
+1. **Find your playbook** in the tables below, by team or by what you run.
+2. **Run its *Applies if* test** for each service you own. If nothing
+   applies, record Route C with the reason.
+3. **Set the priority.** Impact (H/M/L) × verifier susceptibility (A–D or
+   Unknown), using the table below. Work P1 first.
+4. **Fix** using the playbook's options, in order of preference. Prefer the
+   smallest supported change; a full application upgrade is rarely needed.
+5. **Verify** the fix in the running workload with
+   [PB-00 Test and evidence](PB-00-test-and-evidence.md).
+6. **Return one six-field record** per service in the incident tracker (or
+   the workbook's *Service tracker* sheet):
+
+   | # | Field | What to provide |
+   |---|---|---|
+   | 1 | Scope and owner | Service or asset group, accountable owner, environment |
+   | 2 | Priority and rationale | Impact, susceptibility, priority, one sentence why |
+   | 3 | Trust configuration | Standard platform and its assurance record ID, or the custom trust or uncertainty |
+   | 4 | Status and action | Route A, B or C; status; what you changed, or why no change is needed |
+   | 5 | Evidence reference | Link to the change, test or configuration record, or the platform assurance record |
+   | 6 | Outstanding work | Issue, owner and target date, or "None" |
+
+   **Closure routes.** **A:** covered by a platform team's assurance record,
+   with no custom trust overrides. **B:** your own fix and test (custom
+   bundles, embedded runtimes, critical paths). **C:** not applicable to the
+   assessed role, with evidence. "We don't buy eMudhra certificates" is not a
+   reason. Full definitions are in the
+   [action plan](../ACTION_PLAN.md#three-closure-routes) and
+   [completion tracker](../COMPLETION_TRACKER.md).
+
+## When
+
+| Priority | Target window (indicative, pending decision D-03) |
+|---|---|
+| **P1** | Contain within 72 hours (by Thu 29 Oct for existing work); close or except within 7 days (by Mon 2 Nov) |
+| **P2** | Close or except within 14 days (by Mon 9 Nov) |
+| **P3** | Close within 30 days (by Wed 25 Nov) |
+| **P4** | Confirm in the normal cycle |
+
+Windows run from when a record is discovered or assigned. If a date agreed
+through change control differs, record why. **Escalate suspected exploitation
+or a critical outage immediately**, whatever the priority.
+
+## Set the priority
+
+| Impact ↓ / Susceptibility → | A: vendor-pushed block or CT enforced | B: patched OS store, confirm | C: own or compiled bundle | D: embedded or vendor-only | Unknown |
+|---|---|---|---|---|---|
+| **H** | P3 | **P1** | **P1** | **P1** + exception | **P1 to assess** |
+| **M** | P4 | P2 | P2 | P2 + vendor tracking | P2 to assess |
+| **L** | P4 | P3 | P3 | P3 + vendor tracking | P3 to assess |
+
+**H** means a forged certificate could expose credentials or sensitive data,
+enable privileged actions or code execution, or affect many downstream
+systems. Treat these paths as P1 unless the verifier is confirmed safe:
+inspection proxies, identity integrations (JWKS, SAML metadata, token
+endpoints), build pipelines and artifact proxies, payment and customer-data
+APIs, inbound mTLS, code signing and application control, admin and developer
+tooling. Definitions and worked cases are in
+[Prioritisation](../RISK_TIERS.md).
+
+## Find your playbook by team
 
 | Your team | Start with | Then, if relevant |
 |---|---|---|
@@ -34,7 +100,7 @@ Every team should read [PB-00 Test and evidence](PB-00-test-and-evidence.md) onc
 | Service desk / support | [PB-15 Service desk](PB-15-service-desk.md) | — |
 | Identity / IAM / API platform | [PB-16 Identity and mTLS](PB-16-identity-and-mtls.md) | Runtime playbook |
 
-## Find it by what you run
+## Find your playbook by what you run
 
 | If your system… | Playbook |
 |---|---|
@@ -51,16 +117,20 @@ Every team should read [PB-00 Test and evidence](PB-00-test-and-evidence.md) onc
 | Validates JWTs, SAML assertions or OAuth tokens, or accepts client certificates | PB-16 |
 | Presents a certificate issued by eMudhra/emSign, or calls a partner that does | PB-13 |
 
-## Priority in one table
+## How each playbook is organised
 
-Priority = **impact** (H/M/L, using the pack's tier definitions) × **verifier
-susceptibility**. Pending decision D-01, use it to order your work.
+Every playbook uses the same headings:
 
-| | A: vendor-pushed block or CT enforced | B: patched OS store (confirm) | C: own or compiled bundle | D: embedded or vendor-only | Unknown |
-|---|---|---|---|---|---|
-| **H** | P3 | **P1** | **P1** | **P1** + exception | **P1 to assess** |
-| **M** | P4 | P2 | P2 | P2 + vendor tracking | P2 to assess |
-| **L** | P4 | P3 | P3 | P3 + vendor tracking | P3 to assess |
+1. **Applies if**: a yes/no test.
+2. **Fix**: options in order of preference. Use the first one that works.
+3. **Verify**: prove the fix is active in the running workload.
+4. **Record**: what goes into the six fields.
+5. **Watch out for**: the mistakes we expect.
+6. **Escalate when**: when to stop and call Security/PKI or the incident lead.
+
+Each playbook ends with **References**. Version-aware detail is in
+[Remediation options](../REMEDIATION_OPTIONS.md) and
+[Application validation](../APPLICATION_VALIDATION.md).
 
 ## Rules that apply everywhere
 
@@ -69,24 +139,38 @@ susceptibility**. Pending decision D-01, use it to order your work.
   only adds.
 - **Never turn off verification** (`verify=False`, `-k`, `rejectUnauthorized:false`,
   `InsecureSkipVerify`, trust-all managers) to get past an outage.
-- **Don't restore removed trust silently.** If a legitimate service breaks, raise
-  an exception ([workbook *Exceptions* sheet](../eMudhra-response-workbook.xlsx)).
-- **Test both routes**: the emSign route and, on Windows, Java and older or
-  vendor bundles, the Sectigo AAA cross-sign route.
+- **Don't restore removed trust silently.** If a legitimate service breaks,
+  raise an exception (workbook *Exceptions* sheet).
+- **Test the AAA route where AAA is still trusted** (Windows, Java, older or
+  vendor bundles), as well as the emSign route.
 - **A fix on disk is not a fix** until the running process has restarted and a
   fresh connection has been tested.
 
-## Relationship to the response pack
+## Escalate immediately
 
-These playbooks reorganise and extend the
-[eMudhraResponse pack](../README.md). Closure
-routes A/B/C, the six tracker fields and the status values come from the pack's
-[action plan](../ACTION_PLAN.md)
-and [tracker](../COMPLETION_TRACKER.md).
-The deeper caveats are in
-[REMEDIATION_OPTIONS](../REMEDIATION_OPTIONS.md)
-and [APPLICATION_VALIDATION](../APPLICATION_VALIDATION.md).
+- You find a certificate or signature chaining to an affected intermediate
+  outside the test hosts (a possible forgery: call the SOC).
+- A P1 path can't be fixed or contained within 72 hours.
+- A fix breaks a business-critical integration, and the only workaround would
+  restore removed trust.
 
-None of the commands here have been run against the enterprise estate. Paths
-such as `/path/to/...` and `/opt/company/trust/...` are placeholders. Check each
-step against the exact deployed version and the current vendor advisory.
+None of the commands in these playbooks have been run against the enterprise
+estate. Paths such as `/path/to/...` and `/opt/company/trust/...` are
+placeholders. Check each step against the exact deployed version and the
+current vendor advisory.
+
+## References
+
+**Related documents**
+
+- [README](../README.md): executive summary and situation as at 26 October
+- [Action plan](../ACTION_PLAN.md): closure routes, responsibilities, the 30-day plan, decisions
+- [Prioritisation](../RISK_TIERS.md): impact, susceptibility and worked cases
+- [Completion tracker](../COMPLETION_TRACKER.md): the six fields and status values
+- [Remediation options](../REMEDIATION_OPTIONS.md), [Application validation](../APPLICATION_VALIDATION.md), [CBOM and cross-signing](../CBOM_AND_CROSS_SIGNING.md)
+
+**External sources**
+
+1. Incident reference: [Impact, maintained package list and test fixtures](https://emudhra.we-have-a-problem.com/)
+2. Google Security Blog: [Protecting Chrome and Android users from compromised eMudhra intermediate CA certificates](https://blog.google/security/protecting-chrome-and-android-users-from-compromised-emudhra-intermediate-ca-certificates/)
+3. Cloudflare: [8 eMudhra certificates are compromised. Here's what you need to know](https://blog.cloudflare.com/emudhra-certificate-compromise/)

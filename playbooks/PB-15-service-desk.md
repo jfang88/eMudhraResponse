@@ -56,3 +56,15 @@ expected and isn't caused by our devices.
   payroll, our VPN) showing a certificate from an unexpected issuer, or a
   warning they clicked through.
 - Several users report the same unexpected certificate on the same site.
+
+## References
+
+**Related documents**
+
+- [Team guide](README.md)
+- [Action plan §12: communications](../ACTION_PLAN.md#12-communications-service-desk-and-legal)
+- [PB-13 availability](PB-13-our-certificates-and-availability.md)
+
+**External sources**
+
+- [Google Security Blog: protecting Chrome and Android users from compromised eMudhra intermediates](https://blog.google/security/protecting-chrome-and-android-users-from-compromised-emudhra-intermediate-ca-certificates/)

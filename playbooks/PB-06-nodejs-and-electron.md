@@ -113,4 +113,16 @@ app's real client, and restart the service so new flags take effect.
   and explicit agents, on a P1 path.
 - An Electron vendor won't commit to a date.
 
-Depth: [REMEDIATION_OPTIONS: Node.js](../REMEDIATION_OPTIONS.md#nodejs-older-bundled-roots-and-custom-agents).
+## References
+
+**Related documents**
+
+- [Team guide](README.md)
+- [Remediation options: Node.js](../REMEDIATION_OPTIONS.md#nodejs-older-bundled-roots-and-custom-agents)
+
+**External sources**
+
+- [Node.js: command-line options (CA selection)](https://nodejs.org/api/cli.html)
+- [Node.js: TLS client CA options](https://nodejs.org/api/tls.html)
+- [Rescana: fix-status summary, 20–21 October](https://rescana.com/post/emudhra-intermediate-ca-key-compromise-october-2026)
+- [lilting.ch: macOS curl, Node.js and uv tests against the recovered keys](https://lilting.ch/en/articles/emudhra-weak-intermediate-ca-keys)

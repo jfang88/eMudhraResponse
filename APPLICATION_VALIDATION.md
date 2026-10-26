@@ -1,14 +1,16 @@
 # Application validation — specialist appendix
 
-**24 October 2026 | Selective reference, not a universal checklist**
+**Version 2 · 26 October 2026 · Specialist reference: selective, not a universal checklist**
 
 ## When to use this appendix
+
+Most teams should start with their [playbook](playbooks/README.md) and the short test procedure in [PB-00](playbooks/PB-00-test-and-evidence.md). This appendix gives the detail behind them.
 
 Use these checks for central platform assurance and Route B: custom stores, uncertain behaviour or critical paths not adequately covered by shared evidence. The [action plan](ACTION_PLAN.md) defines closure; this appendix does not add mandatory requirements to Route A or C.
 
 Select checks that address the identified uncertainty. Equivalent configurations may share evidence. Do not require each application to create a harness, inventory every certificate, audit all source code or test every endpoint.
 
-Security/PKI owns the current affected-certificate reference and approved test matrix. Standard remediation patterns should cover both emSign and AAA routes centrally. Teams can reference that assessment and deployment coverage. A materially different verifier, mount, trust override or validation route requires additional scoped checks.
+Security/PKI owns the current affected-certificate reference and approved test matrix. Standard remediation patterns should cover the emSign route centrally, and the AAA route where AAA is still trusted (Windows, Java, older or vendor bundles). Teams can reference that assessment and deployment coverage. A materially different verifier, mount, trust override or validation route requires additional scoped checks.
 
 No production internet access is required solely for the external checker. Use offline validation or a representative environment with documented equivalence. Product/version-specific vendor evidence may support closure where direct testing is impractical; record deployment/applicability and limitations, and have Security accept residual uncertainty. Network failure alone remains inconclusive.
 
@@ -19,7 +21,7 @@ For the selected configuration under investigation, identify the deployed execut
 
 Test distinct verification paths separately. The same host can contain an OS store, Java store, Python virtual environments, bundled browser engines and a proxy with different trust decisions. Use the running workload's configuration; a developer shell or host-level curl may select another verifier.
 
-Assign the path a [risk tier](RISK_TIERS.md) based on trust role, reachability and consequence. An inbound server certificate presentation is different from outbound server-certificate validation or inbound client-certificate authentication. An unaffected server certificate alone does not establish that the host's other clients are protected. Private-CA-only or serve-only findings need scope evidence before recording non-applicability.
+Record the path's impact and verifier susceptibility. The [priority matrix](RISK_TIERS.md#4-priority-matrix) gives its priority. An inbound server certificate presentation is different from outbound server-certificate validation or inbound client-certificate authentication. An unaffected server certificate alone does not establish that the host's other clients are protected. Private-CA-only or serve-only findings need scope evidence before recording non-applicability.
 
 ## 2. Discover hidden and overridden stores
 
@@ -68,7 +70,7 @@ Do not blanket-delete every eMudhra or Sectigo certificate. Use vendor-specific 
 
 If deeper discovery is needed, consult the optional [CBOM and cross-signing guide](CBOM_AND_CROSS_SIGNING.md). CBOM generation is not required for incident closure. CBOMkit-theia can assist X.509 discovery; Trivy/Grype package results alone do not enumerate effective trust.
 
-The same compromised key can appear in two certificates with different issuers and certificate fingerprints. Compare SPKI as well as certificate SHA-256. “AAA Certificate Services” is Sectigo's cross-signing root name, not DNS AAAA. Verify the affected chain is rejected through both emSign and AAA paths. Do not label all AAA-dependent certificates compromised.
+The same compromised key can appear in two certificates with different issuers and certificate fingerprints. Compare SPKI as well as certificate SHA-256. “AAA Certificate Services” is Sectigo's cross-signing root name, not DNS AAAA. Verify the affected chain is rejected through the emSign path, and the AAA path where AAA is still trusted (see [CBOM and cross-signing](CBOM_AND_CROSS_SIGNING.md#sectigo--aaa-relevant-but-not-a-sectigo-root-key-compromise)). Do not label all AAA-dependent certificates compromised.
 
 Record separate outcomes for an affected certificate found, an available trust route and a successful/failed verification. Retain unsupported store formats as unknown. Assess the affected code-signing hierarchy under code-signature policy separately; HTTPS tests do not cover that purpose.
 
@@ -97,7 +99,7 @@ Do not add -k, credentials, cookies or business data. Use an approved diagnostic
 | --- | --- |
 | TLS accepted and an HTTP response received from a test host | Fail for that verification path, even if the HTTP status is an error. |
 | Explicit rejection attributable to the affected chain and intended trust policy | Pass for that tested chain and verifier; retain error evidence. |
-| DNS failure, timeout, firewall deny or proxy-generated block page | Inconclusive for application trust. |
+| DNS failure, timeout, firewall deny or proxy-generated block page | Inconclusive for application trust. A proxy block page caused by the upstream certificate is a **pass for the proxy itself** ([PB-09](playbooks/PB-09-proxies-gateways-and-tls-inspection.md)). |
 | Only an expired certificate, hostname mismatch or unrelated validation error causes failure | Inconclusive for incident remediation; verify the current fixture and rejection reason. |
 | CT rejection alone | That test is protected by CT, but does not establish that the compromised chain is distrusted. |
 | Normal approved HTTPS integration also fails | Investigate regression before closure. |
@@ -108,9 +110,9 @@ For restricted environments, use the reference site's [offline chain bundle](htt
 
 ## 6. Activate and verify the deployed fix
 
-For implementation examples that retain the current application/runtime where feasible, use the [older-stack remediation recipes](REMEDIATION_OPTIONS.md#practical-recipes-for-older-application-stacks). They cover Java/JDK stores and vendor blocklists, Node CA selection and agents, Python virtual environments/Requests/SSL contexts, Windows/.NET, Linux and other consumers. Select the applicable recipe; these are not additional universal closure requirements.
+For step-by-step fixes by team, use the [playbooks](playbooks/README.md). For implementation examples that retain the current application/runtime where feasible, use the [older-stack remediation recipes](REMEDIATION_OPTIONS.md#practical-recipes-for-older-application-stacks). They cover Java/JDK stores and vendor blocklists, Node CA selection and agents, Python virtual environments/Requests/SSL contexts, Windows/.NET, Linux and other consumers. Select the applicable recipe; these are not additional universal closure requirements.
 
-A fix may be a trust-data or configuration update rather than a new application version. Follow the [remediation decision framework](ACTION_PLAN.md#remediation-without-a-full-application-upgrade). For custom trust-data changes, retaining a store/blocklist hash can help establish what changed. Standard-platform consumers should reference the shared assurance/change record instead of collecting their own hashes. A scanner may continue to flag a package; retain mitigation evidence and track any remaining vendor-patch requirement separately.
+A fix may be a trust-data or configuration update rather than a new application version. Follow the [remediation decision framework](ACTION_PLAN.md#11-remediation-without-a-full-application-upgrade). For custom trust-data changes, retaining a store/blocklist hash can help establish what changed. Standard-platform consumers should reference the shared assurance/change record instead of collecting their own hashes. A scanner may continue to flag a package; retain mitigation evidence and track any remaining vendor-patch requirement separately.
 
 Specifically check that removing an intermediate does not leave it acceptable when supplied by the peer; that additive CA settings have not retained old roots; and that custom TLS contexts honour the selected store. For revocation-based remedies, verify checks of affected intermediates and test unavailable revocation-service behaviour. Do not infer protection from a configuration flag alone.
 
@@ -129,7 +131,18 @@ Close through Route A, B or C under the action plan. Package versions or scans a
 
 ## References
 
+**Related documents**
+
+- [Playbooks](playbooks/README.md), especially [PB-00 Test and evidence](playbooks/PB-00-test-and-evidence.md)
+- [Prioritisation](RISK_TIERS.md), [Action plan](ACTION_PLAN.md), [Completion tracker](COMPLETION_TRACKER.md)
+- [Remediation options](REMEDIATION_OPTIONS.md), [CBOM and cross-signing](CBOM_AND_CROSS_SIGNING.md)
+
+**External sources**
+
 - [Incident reference, cross-sign inventory, maintained fixes and test fixtures](https://emudhra.we-have-a-problem.com/).
+- [Affected intermediates and cross-signs (JSON)](https://emudhra.we-have-a-problem.com/impacted-intermediates.json) and [root reference (JSON)](https://emudhra.we-have-a-problem.com/roots.json).
+- [Current test matrix](https://emudhra.we-have-a-problem.com/#check) and [offline chain bundle](https://emudhra.we-have-a-problem.com/chains.zip).
+- Test hosts: [dv-g3b-emudhra](https://dv-g3b-emudhra.we-have-a-problem.com/), [dv-g3b-aaa-emudhra](https://dv-g3b-aaa-emudhra.we-have-a-problem.com/), [dv-g3b-noct-emudhra](https://dv-g3b-noct-emudhra.we-have-a-problem.com/), [dv-g3b-aaa-noct-emudhra](https://dv-g3b-aaa-noct-emudhra.we-have-a-problem.com/).
 - [Cloudflare: validate the actual application TLS path](https://blog.cloudflare.com/emudhra-certificate-compromise/).
 - [J: Oracle JSSE trust-store selection](https://docs.oracle.com/en/java/javase/26/security/java-secure-socket-extension-jsse-reference-guide.html).
 - [P: Python ssl defaults and contexts](https://docs.python.org/3.12/library/ssl.html).

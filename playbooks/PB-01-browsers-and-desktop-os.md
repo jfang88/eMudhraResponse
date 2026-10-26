@@ -123,3 +123,21 @@ keys are **P1** for those tools.
 - Policy or egress blocks vendor updates and can't be changed within 72 hours.
 - More than a small share of devices haven't checked in since 20 October
   (threshold set by the incident lead).
+
+## References
+
+**Related documents**
+
+- [Team guide](README.md)
+- [Action plan §5: browser and desktop proviso](../ACTION_PLAN.md#5-phase-1-browser-and-desktop-proviso)
+- [Prioritisation](../RISK_TIERS.md)
+- [PB-09 (TLS inspection)](PB-09-proxies-gateways-and-tls-inspection.md)
+
+**External sources**
+
+- [Google Security Blog: protecting Chrome and Android users from compromised eMudhra intermediates](https://blog.google/security/protecting-chrome-and-android-users-from-compromised-emudhra-intermediate-ca-certificates/)
+- [Mozilla: protecting Firefox users following the eMudhra compromise](https://blog.mozilla.org/security/2026/10/20/protecting-firefox-users-following-the-compromise-of-emudhra-intermediate-certificates/)
+- [BleepingComputer: Mozilla, Google, Apple block compromised eMudhra CA certificates](https://bleepingcomputer.com/news/security/mozilla-google-apple-block-compromised-emudhra-ca-certificates)
+- [Free Press Journal: vendor block dates and code-signing intermediates](https://www.freepressjournal.in/tech/why-did-apple-google-microsoft-mozilla-block-certificates-from-indian-firm-emudhra)
+- [Microsoft: configure trusted roots and disallowed certificates](https://learn.microsoft.com/en-us/windows-server/identity/ad-cs/configure-trusted-roots-disallowed-certificates)
+- [lilting.ch: macOS curl, Node.js and uv tests against the recovered keys](https://lilting.ch/en/articles/emudhra-weak-intermediate-ca-keys)

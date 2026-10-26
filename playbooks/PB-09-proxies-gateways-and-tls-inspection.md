@@ -85,4 +85,16 @@ on that path, including non-browser software.
 - The vendor has no trust-store update and the product can't take a custom
   bundle.
 
-Depth: [REMEDIATION_OPTIONS: nginx](../REMEDIATION_OPTIONS.md#other-stacks-scope-the-workaround-before-promising-it).
+## References
+
+**Related documents**
+
+- [Team guide](README.md)
+- [Remediation options: nginx](../REMEDIATION_OPTIONS.md#other-stacks-scope-the-workaround-before-promising-it)
+- [Decision D-07 (upstream policy)](../ACTION_PLAN.md#appendix-a-decision-register)
+
+**External sources**
+
+- [nginx: upstream certificate verification](https://nginx.org/en/docs/http/ngx_http_proxy_module.html#proxy_ssl_trusted_certificate)
+- [HAProxy: server SSL verify and ca-file options](https://docs.haproxy.org/2.8/configuration.html#5.2-verify)
+- [Cloudflare: 8 eMudhra certificates are compromised](https://blog.cloudflare.com/emudhra-certificate-compromise/)

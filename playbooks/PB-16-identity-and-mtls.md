@@ -11,7 +11,7 @@
 - Or a service **accepts client certificates** (mTLS), especially from
   partners or the internet.
 
-## Why these are Tier 1
+## Why these are P1 (high impact)
 
 | Path | What a forged TLS certificate gives an attacker | Network position needed |
 |---|---|---|
@@ -69,3 +69,14 @@ JWKS/metadata hardening, mTLS trust-list contents.
 
 - A P1 API validates tokens with a library whose trust store you can't change.
 - Any inbound mTLS endpoint trusts a general public-root bundle.
+
+## References
+
+**Related documents**
+
+- [Team guide](README.md)
+- [Prioritisation §5: fix first](../RISK_TIERS.md#5-fix-first-paths-that-turn-a-forged-certificate-into-something-worse)
+
+**External sources**
+
+- [Cloudflare: 8 eMudhra certificates are compromised](https://blog.cloudflare.com/emudhra-certificate-compromise/)
