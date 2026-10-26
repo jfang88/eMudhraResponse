@@ -95,4 +95,17 @@ normal business call.
 - A P1 Go service can't be rebuilt (no source, or a vendor binary).
 - A Rust or Go binary embeds roots and the owner is unknown.
 
-Depth: [REMEDIATION_OPTIONS: Other stacks](../REMEDIATION_OPTIONS.md#other-stacks-scope-the-workaround-before-promising-it).
+## References
+
+**Related documents**
+
+- [Team guide](README.md)
+- [Remediation options: other stacks](../REMEDIATION_OPTIONS.md#other-stacks-scope-the-workaround-before-promising-it)
+
+**External sources**
+
+- [Go: release history (1.27.3 and 1.26.10)](https://go.dev/doc/devel/release)
+- [Go: crypto/x509 system certificate pool](https://pkg.go.dev/crypto/x509#SystemCertPool)
+- [crates.io: webpki-roots versions](https://crates.io/crates/webpki-roots/versions)
+- [PHP: OpenSSL CA configuration](https://www.php.net/manual/en/openssl.configuration.php)
+- [Rescana: fix-status summary, 20–21 October](https://rescana.com/post/emudhra-intermediate-ca-key-compromise-october-2026)

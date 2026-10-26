@@ -1,26 +1,32 @@
 # Remediation options — specialist reference
 
-**24 October 2026 | Optional reference for platform and application owners**
+**Version 2 · 26 October 2026 · Specialist reference for platform and application owners**
 
-Use only the sections relevant to your platform. The [action plan](ACTION_PLAN.md) defines the three acceptable closure routes; this reference does not impose additional evidence on every application. Vendor guidance below was checked on 24 October 2026 and should be rechecked before implementation.
+**Start with your team's [playbook](playbooks/README.md).** This reference gives version-aware detail behind the playbooks. Use only the sections relevant to your platform. The [action plan](ACTION_PLAN.md) defines the three closure routes, and [prioritisation](RISK_TIERS.md) sets the order of work. This reference adds no evidence requirements for every application. Vendor guidance was checked on 24 October 2026 and updated on 26 October; recheck it before implementation.
 
 ## Remediation without a full application upgrade
 
 **Policy:** require demonstrated rejection of the compromised chains, not migration to the newest application or runtime major version. Prefer a supported trust-data fix or maintenance-branch security update when it covers the application's actual verifier. Keep unrelated lifecycle/security findings separate; incident mitigation does not make unsupported software generally safe.
 
-### Verified delivery options (24 October 2026)
+### Verified delivery options (updated 26 October 2026)
 
 | Platform | Option that can avoid a full application upgrade | Conditions / limitations |
 | --- | --- | --- |
-| Ubuntu | Targeted updates to ca-certificates and libnss3 rather than upgrading all packages. [R1] | Only covers consumers of those components. Canonical documents an additional Java-store synchronisation issue; preserve locally provisioned CAs when following its workaround. Snap apps have separate update paths. |
-| Windows | Microsoft trusted/disallowed Certificate Trust List updates; supported internal distribution for disconnected environments. [R2] | Trust-data delivery, not a universal application installer. Prove effective distrust under the service identity; private Java/PEM/application stores are separate. |
+| Ubuntu | Targeted updates to ca-certificates and libnss3 rather than upgrading all packages. On 24.04 LTS, `ca-certificates 20260816ubuntu0.24.04.1` (20 Oct) blocklists emSign ECC Root CA - G3. [R1][R11] | Only covers consumers of those components. Canonical documents an additional Java-store synchronisation issue; preserve locally provisioned CAs when following its workaround. Snap apps have separate update paths. |
+| Windows | Microsoft trusted/disallowed Certificate Trust List updates (Microsoft blocked the intermediates on 20 Oct); supported internal distribution for disconnected environments. [R2] | Trust-data delivery, not a universal application installer. Prove effective distrust under the service identity; private Java/PEM/application stores are separate. |
 | Azul Zulu | Vendor-provided replacement blocklist file for existing installations, with platform-specific downloads and checksums. [R3] | Follow the exact Zulu/version/platform guidance; replace the correct blocked.certs or blacklisted.certs file, preserve permissions and restart all consuming JVMs. Do not assume it is supported on other JDK vendors. |
 | Oracle JDK | Vendor-documented removal of relevant roots from the effective keystore, or enabled revocation checking. [R4] | Oracle's 23 October advisory requires additional action even for listed updated builds. Apply to each installation/custom store as applicable. Root removal can affect other services; revocation requires validation of network reachability and failure behaviour. |
-| Python using certifi | Update only the CA-bundle dependency to a compatible fixed release, or configure the HTTP client to use a separately managed bundle where supported. [R5][R6] | No need to assume all application dependencies must change. Certifi does not support editing its packaged bundle in place. Requests supports an explicit verify path or REQUESTS_CA_BUNDLE, but confirm the actual call path honours it. |
+| Python using certifi | Update only the CA-bundle dependency to **certifi 2026.10.18 or later**, or configure the HTTP client to use a separately managed bundle where supported. [R5][R6][R10] | Checked 26 Oct: 2026.7.22 still contains emSign ECC Root CA - G3; 2026.10.18, .19 and .23 do not. 2026.10.23 also drops emSign Root CA - C1 and emSign ECC Root CA - C3, which affects availability (see the [action plan](ACTION_PLAN.md#7-availability-track-tuesday-27-october)). No need to assume all application dependencies must change. Certifi does not support editing its packaged bundle in place. Requests supports an explicit verify path or REQUESTS_CA_BUNDLE, but confirm the actual call path honours it. |
+| Go | Rebuild with **Go 1.27.3 or 1.26.10** or later (released 19 Oct), which reject chains containing any of the eight keys. On Linux, updating the system bundle also removes the root for binaries using system roots. [R8][S6] | A binary is protected only once rebuilt. Go 1.25 and older receive no fix. Embedded root pools and scratch images need a rebuild. |
+| Rust webpki-roots | Update the crate to **1.0.10 or later** and rebuild. [R9] | Checked 26 Oct: 1.0.9 still contains emSign ECC Root CA - G3. 1.0.11 drops further emSign roots. Crates using the OS store follow the OS fix. |
+| Node.js and Bun | No fixed release as of 20–21 Oct. Use the patched OS store (`--use-system-ca` where the build lists it, otherwise `--use-openssl-ca` on Linux) or an explicit `ca` on the client the application uses. [R7][R12] | Node 22.22.0's built-in roots still included emSign ECC Root CA - G3 on 26 Oct. `NODE_EXTRA_CA_CERTS` only adds trust. |
+| macOS command-line tools | Use Homebrew curl/OpenSSL with updated `ca-certificates`, or pass an approved bundle explicitly, until Apple updates `/etc/ssl/cert.pem`. [R13] | The built-in `/usr/bin/curl` accepted the affected chain after Apple's block. Safari and the Keychain are covered by Apple's fix. |
 | Embedded roots / custom verifiers / vendor appliances | Vendor hotfix, supported maintenance release, or a documented external-store configuration if available. | If the verifier cannot consume external trust/distrust policy, a store-only fix may not exist; a runtime rebuild or vendor update can be necessary. Obtain product-specific confirmation. |
 | Containers | Rebuild the existing application release with updated trust data, or deploy a versioned managed trust volume when the application supports it. | Preserve application version where feasible. Changes must survive restart and scale-out; confirm the actual workload reads the changed store. |
 
-These are distinct mechanisms: package update, data-file replacement, trust-list distribution and configuration change. There is no single verified standalone installer that fixes every enterprise verifier.
+These are distinct mechanisms: package update, data-file replacement, trust-list distribution, rebuild and configuration change. There is no single verified standalone installer that fixes every enterprise verifier.
+
+**Root removal affects availability.** Most Mozilla-derived fixes remove emSign ECC Root CA - G3 rather than blocking the keys. Legitimate partner certificates under that root then fail for the updated client. Check the availability list ([PB-13](playbooks/PB-13-our-certificates-and-availability.md)) before rolling out, and handle breakages by time-boxed exception, never by restoring the root globally.
 
 ### Choose the smallest effective change
 
@@ -99,7 +105,7 @@ Retain the correct trustStoreType and protected password configuration if needed
 
 **Option 3 — revocation checking.** Oracle also documents com.sun.net.ssl.checkRevocation and com.sun.security.enableCRLDP [R4]. This is conditional on provider and application behaviour, CRL access and failure policy. Prefer a deterministic supported blocklist/store remedy for disconnected applications; do not declare success just because flags were added.
 
-**Validate without upgrading.** Oracle links [CheckCerts.java](https://cr.openjdk.org/~mr/CheckCerts.java), described as working on JDK 8+. Obtain it from the vendor source, review it and run it using the target runtime and relevant store settings. JDK 8 requires compilation (javac then java); do not assume Java source-file launch works on 8. The vendor check supplements, rather than replaces, checks of custom application clients and normal integrations. Use the actual application HTTP client to validate representative emSign and AAA fixtures when required by Route B.
+**Validate without upgrading.** Oracle links [CheckCerts.java](https://cr.openjdk.org/~mr/CheckCerts.java) [R14], described as working on JDK 8+. Obtain it from the vendor source, review it and run it using the target runtime and relevant store settings. JDK 8 requires compilation (javac then java); do not assume Java source-file launch works on 8. The vendor check supplements, rather than replaces, checks of custom application clients and normal integrations. Use the actual application HTTP client to validate representative emSign and AAA fixtures when required by Route B.
 
 **JDK 6/7, IBM Java and proprietary application servers:** no universal incident-specific file replacement has been verified here. Some support an external trust store, but confirm exact JSSE/provider semantics and server support. Seek a vendor hotfix or a validated scoped store change; do not promise that a JDK 8 utility or another vendor's blocklist works. Track inability to validate as an exception rather than forcing a blind major-version upgrade.
 
@@ -222,7 +228,7 @@ curl -V identifies the TLS backend. Schannel/native trust, an additional CA dire
 
 | Stack | Store-only option to investigate | Validation / limit |
 | --- | --- | --- |
-| Go services | Update the system bundle if the binary uses system roots; on applicable older Unix builds check SSL_CERT_FILE and SSL_CERT_DIR handling. | Restart and test the actual binary. Custom RootCAs/embedded pools can ignore system changes. Behaviour differs by OS and Go version; current Go 1.27 documentation explicitly notes changed override semantics, so do not project them onto old Windows/macOS binaries. A runtime denylist fix can require rebuilding the binary. [S6] |
+| Go services | Preferred: rebuild with Go 1.27.3/1.26.10 or later [R8]. Store-only: update the system bundle if the binary uses system roots; on applicable older Unix builds check SSL_CERT_FILE and SSL_CERT_DIR handling. | Restart and test the actual binary. Custom RootCAs/embedded pools can ignore system changes. Behaviour differs by OS and Go version; current Go 1.27 documentation explicitly notes changed override semantics, so do not project them onto old Windows/macOS binaries. A runtime denylist fix can require rebuilding the binary. [S6] |
 | Rust/native-TLS versus rustls | Identify whether roots come from the native platform, a file, or a compiled dependency. | For embedded roots without a supported override, rebuilding the same application release with corrected dependency data may be necessary. Do not promise a generic environment-variable fix. |
 | PHP OpenSSL clients | Configure openssl.cafile and check openssl.capath fallback in the effective service configuration. | Validate the actual PHP-FPM/Apache workload, not only CLI php.ini. PHP cURL is a separate client path and needs its own supported CA configuration. [S7] |
 | nginx reverse proxy | Use proxy_ssl_trusted_certificate for the upstream bundle and verify proxy_ssl_verify is enabled, with correct upstream name/SNI policy. | Test the actual backend TLS leg in a representative configuration and reload safely. Replacing the site's frontend certificate does not fix upstream trust. Verification is off by default in the cited directive documentation. [S8] |
@@ -235,7 +241,35 @@ For a standard configuration, application teams only confirm applicability, depl
 
 A store change is active only after the actual client uses it; a file on disk alone is insufficient. Check fresh connections after restart/reload, relevant mounted configuration and one representative deployment per materially different configuration. Do not make new outbound production access merely to reach a checker.
 
-### Additional stack documentation
+These recipes describe vendor procedures where explicitly labelled and otherwise documented configuration mechanisms adapted to this incident. Validate against the exact deployed build; no snippets in this appendix have been executed against the enterprise estate.
+
+These options are a decision framework, not instructions already applied to the enterprise. Recheck the exact vendor advisory before implementation.
+
+## References
+
+**Related documents**
+
+- [Playbooks](playbooks/README.md): the operational steps for each team
+- [Action plan](ACTION_PLAN.md), [Prioritisation](RISK_TIERS.md), [Application validation](APPLICATION_VALIDATION.md), [CBOM and cross-signing](CBOM_AND_CROSS_SIGNING.md)
+
+**Remediation references**
+
+- [R1: Canonical targeted fixes and Java-store caveat](https://ubuntu.com/blog/emudhra-ca-compromise-fixes-available).
+- [R2: Microsoft CTL and disallowed-certificate distribution](https://learn.microsoft.com/en-us/windows-server/identity/ad-cs/configure-trusted-roots-disallowed-certificates).
+- [R3: Azul downloadable blocklist workaround](https://docs.azul.com/core/emudhra-workaround).
+- [R4: Oracle JDK eMudhra guidance, updated 23 October](https://ops.java/emudhra).
+- [R5: Certifi bundle and modification policy](https://github.com/certifi/python-certifi).
+- [R6: Requests alternate CA-bundle configuration](https://requests.readthedocs.io/en/latest/user/advanced/#ssl-cert-verification).
+- [R7: Node.js CA-selection configuration](https://nodejs.org/api/cli.html).
+- [R8: Go release history (1.27.3 and 1.26.10)](https://go.dev/doc/devel/release).
+- [R9: webpki-roots versions on crates.io](https://crates.io/crates/webpki-roots/versions).
+- [R10: certifi release history on PyPI](https://pypi.org/project/certifi/#history).
+- [R11: Ubuntu ca-certificates bug 2171507](https://bugs.launchpad.net/ubuntu/+source/ca-certificates/+bug/2171507).
+- [R12: Rescana fix-status summary, 20–21 October](https://rescana.com/post/emudhra-intermediate-ca-key-compromise-october-2026).
+- [R13: lilting.ch macOS curl, Node.js and uv tests](https://lilting.ch/en/articles/emudhra-weak-intermediate-ca-keys).
+- [R14: Oracle-linked CheckCerts.java validation utility](https://cr.openjdk.org/~mr/CheckCerts.java).
+
+**Stack documentation**
 
 - [S1: Node 18 CLI — older CA-selection flags and environment variables](https://nodejs.org/docs/latest-v18.x/api/cli.html).
 - [S2: Node TLS client CA options](https://nodejs.org/api/tls.html).
@@ -245,18 +279,3 @@ A store change is active only after the actual client uses it; a file on disk al
 - [S6: Go x509 system certificate pool](https://pkg.go.dev/crypto/x509#SystemCertPool).
 - [S7: PHP OpenSSL CA configuration](https://www.php.net/manual/en/openssl.configuration.php).
 - [S8: nginx upstream certificate verification](https://nginx.org/en/docs/http/ngx_http_proxy_module.html#proxy_ssl_trusted_certificate).
-
-These recipes describe vendor procedures where explicitly labelled and otherwise documented configuration mechanisms adapted to this incident. Validate against the exact deployed build; no snippets in this appendix have been executed against the enterprise estate.
-
-### Remediation references
-
-- [R1: Canonical targeted fixes and Java-store caveat](https://ubuntu.com/blog/emudhra-ca-compromise-fixes-available).
-- [R2: Microsoft CTL and disallowed-certificate distribution](https://learn.microsoft.com/en-us/windows-server/identity/ad-cs/configure-trusted-roots-disallowed-certificates).
-- [R3: Azul downloadable blocklist workaround](https://docs.azul.com/core/emudhra-workaround).
-- [R4: Oracle JDK eMudhra guidance, updated 23 October](https://ops.java/emudhra).
-- [R5: Certifi bundle and modification policy](https://github.com/certifi/python-certifi).
-- [R6: Requests alternate CA-bundle configuration](https://requests.readthedocs.io/en/latest/user/advanced/#ssl-cert-verification).
-- [R7: Node.js CA-selection configuration](https://nodejs.org/api/cli.html).
-
-These options are a decision framework, not instructions already applied to the enterprise. Recheck the exact vendor advisory before implementation.
-

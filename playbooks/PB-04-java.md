@@ -108,4 +108,17 @@ everything above.
 - The app uses a custom `SSLContext` you can't reconfigure on a P1 path.
 - The vendor product embeds a JRE and the vendor has no remedy (PB-11).
 
-Depth: [REMEDIATION_OPTIONS: Java](../REMEDIATION_OPTIONS.md#java-jdk-8-and-later-plus-older-installations) · [Oracle advisory](https://ops.java/emudhra) · [Azul workaround](https://docs.azul.com/core/emudhra-workaround)
+## References
+
+**Related documents**
+
+- [Team guide](README.md)
+- [Remediation options: Java](../REMEDIATION_OPTIONS.md#java-jdk-8-and-later-plus-older-installations)
+
+**External sources**
+
+- [Oracle JDK eMudhra guidance (updated 23 October)](https://ops.java/emudhra)
+- [Azul: downloadable blocklist workaround](https://docs.azul.com/core/emudhra-workaround)
+- [Oracle-linked CheckCerts.java validation utility](https://cr.openjdk.org/~mr/CheckCerts.java)
+- [Oracle: JSSE reference guide (trust-store selection)](https://docs.oracle.com/en/java/javase/26/security/java-secure-socket-extension-jsse-reference-guide.html)
+- [Canonical: eMudhra CA compromise fixes available](https://ubuntu.com/blog/emudhra-ca-compromise-fixes-available)

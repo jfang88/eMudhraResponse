@@ -55,8 +55,8 @@ deployed code and configuration for:
 - PowerShell `-SkipCertificateCheck`, or
   `[System.Net.ServicePointManager]::ServerCertificateValidationCallback = {$true}`
 
-A text match isn't a finding until you confirm the code path is live (pack
-rule).
+A text match isn't a finding until you confirm the code path is live (see
+[Application validation §4](../APPLICATION_VALIDATION.md#4-audit-verification-bypasses)).
 
 ## Verify
 
@@ -101,4 +101,15 @@ rule).
 - A permissive validation callback is live on a P1 path. That's a pre-existing
   weakness made exploitable by this incident.
 
-Depth: [REMEDIATION_OPTIONS: Windows and .NET](../REMEDIATION_OPTIONS.md#windows-and-net).
+## References
+
+**Related documents**
+
+- [Team guide](README.md)
+- [Remediation options: Windows and .NET](../REMEDIATION_OPTIONS.md#windows-and-net)
+
+**External sources**
+
+- [Microsoft: configure trusted roots and disallowed certificates](https://learn.microsoft.com/en-us/windows-server/identity/ad-cs/configure-trusted-roots-disallowed-certificates)
+- [Microsoft: .NET Framework TLS guidance](https://learn.microsoft.com/en-us/dotnet/framework/network-programming/tls)
+- [Free Press Journal: vendor block dates and code-signing intermediates](https://www.freepressjournal.in/tech/why-did-apple-google-microsoft-mozilla-block-certificates-from-indian-firm-emudhra)

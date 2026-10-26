@@ -110,4 +110,16 @@ long-lived workers (Gunicorn, Celery, Airflow) afterwards.
 - Dependency pins block the certifi update and no explicit bundle option
   exists.
 
-Depth: [REMEDIATION_OPTIONS: Python](../REMEDIATION_OPTIONS.md#python-keep-the-interpreter-change-the-correct-bundle).
+## References
+
+**Related documents**
+
+- [Team guide](README.md)
+- [Remediation options: Python](../REMEDIATION_OPTIONS.md#python-keep-the-interpreter-change-the-correct-bundle)
+
+**External sources**
+
+- [PyPI: certifi release history](https://pypi.org/project/certifi/#history)
+- [certifi: bundle and modification policy](https://github.com/certifi/python-certifi)
+- [Requests: SSL certificate verification](https://requests.readthedocs.io/en/latest/user/advanced/#ssl-cert-verification)
+- [truststore: use the OS trust store from Python](https://pypi.org/project/truststore/)

@@ -76,7 +76,7 @@ The verifier is **not under our direct control**:
 - Where you can test (non-production instance, test VLAN): use the PB-00 test
   hosts through the product's own feature that makes outbound calls.
 - Otherwise accept a **product- and version-specific** vendor statement,
-  recording applicability and limitations (pack rule). A generic "we are not
+  recording applicability and limitations (action plan rule). A generic "we are not
   affected" without a version is not enough for P1.
 
 ## Record
@@ -98,3 +98,17 @@ response), reference, interim control, exception ID, target date.
   will be no fix.
 - A critical supplier reports possible misuse affecting our data. Call the
   SOC (PB-14) and Legal (decision D-11).
+
+## References
+
+**Related documents**
+
+- [Team guide](README.md)
+- [Action plan §6: the long tail](../ACTION_PLAN.md#6-phase-2-the-long-tail)
+- [Decisions D-09 and D-10](../ACTION_PLAN.md#appendix-a-decision-register)
+
+**External sources**
+
+- [Sectigo: advisory on compromised eMudhra intermediate certificates](https://www.sectigo.com/resource-library/advisory-on-compromised-emudhra-intermediate-certificates)
+- [iTnews: Cloudflare warns fixing eMudhra certs goes beyond browsers](https://www.itnews.com.au/news/cloudflare-warns-fixing-botched-emudhra-certs-goes-beyond-browsers-629804)
+- [Cloudflare: 8 eMudhra certificates are compromised](https://blog.cloudflare.com/emudhra-certificate-compromise/)

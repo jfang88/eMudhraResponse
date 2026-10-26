@@ -57,7 +57,7 @@ playbook).
 - Use the offline chain bundle from the reference site with **the verifier your
   application actually uses** (OpenSSL proves only OpenSSL).
 - Or test in a representative environment with documented equivalence.
-- Do not open production egress just for the test (pack rule).
+- Do not open production egress just for the test (action plan rule).
 - Security/PKI may provide an internal test service (decision D-13).
 
 ## Record
@@ -80,4 +80,19 @@ by a Route A assurance record.
 - You see a certificate chaining to an affected intermediate anywhere outside
   the test hosts. That is a possible forgery: call the SOC (PB-14).
 
-Depth: [APPLICATION_VALIDATION §5](../APPLICATION_VALIDATION.md#5-perform-negative-and-positive-tests).
+## References
+
+**Related documents**
+
+- [Team guide](README.md)
+- [Application validation §5: negative and positive tests](../APPLICATION_VALIDATION.md#5-perform-negative-and-positive-tests)
+- [Completion tracker](../COMPLETION_TRACKER.md)
+- [Decision D-13 (internal test service)](../ACTION_PLAN.md#appendix-a-decision-register)
+
+**External sources**
+
+- [Incident reference: impact, maintained package list and test fixtures](https://emudhra.we-have-a-problem.com/)
+- [Incident reference: current test matrix](https://emudhra.we-have-a-problem.com/#check)
+- [Incident reference: offline chain bundle](https://emudhra.we-have-a-problem.com/chains.zip)
+- [Incident reference: affected intermediates and cross-signs (JSON)](https://emudhra.we-have-a-problem.com/impacted-intermediates.json)
+- [curl: certificate stores and TLS backends](https://curl.se/docs/sslcerts.html)

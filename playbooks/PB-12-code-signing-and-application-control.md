@@ -82,4 +82,16 @@ DeviceFileCertificateInfo
 - Publisher-only allow rules protect high-value systems, and you can't tighten
   them quickly.
 
-Depth: [CBOM_AND_CROSS_SIGNING: Scope beyond HTTPS](../CBOM_AND_CROSS_SIGNING.md#scope-beyond-https).
+## References
+
+**Related documents**
+
+- [Team guide](README.md)
+- [CBOM and cross-signing: scope beyond HTTPS](../CBOM_AND_CROSS_SIGNING.md#scope-beyond-https)
+- [PB-14 SOC hunt](PB-14-soc-threat-hunt.md)
+
+**External sources**
+
+- [Free Press Journal: vendor block dates and code-signing intermediates](https://www.freepressjournal.in/tech/why-did-apple-google-microsoft-mozilla-block-certificates-from-indian-firm-emudhra)
+- [Microsoft: configure trusted roots and disallowed certificates](https://learn.microsoft.com/en-us/windows-server/identity/ad-cs/configure-trusted-roots-disallowed-certificates)
+- [Microsoft Defender: DeviceFileCertificateInfo table](https://learn.microsoft.com/en-us/defender-xdr/advanced-hunting-devicefilecertificateinfo-table)

@@ -96,4 +96,17 @@ normal business connection.
 - Removing the root breaks a business-critical partner (raise an exception;
   don't silently restore it).
 
-Depth: [REMEDIATION_OPTIONS: Linux, curl and OpenSSL](../REMEDIATION_OPTIONS.md#linux-curl-and-openssl-consumers).
+## References
+
+**Related documents**
+
+- [Team guide](README.md)
+- [Remediation options: Linux, curl and OpenSSL](../REMEDIATION_OPTIONS.md#linux-curl-and-openssl-consumers)
+
+**External sources**
+
+- [Canonical: eMudhra CA compromise fixes available](https://ubuntu.com/blog/emudhra-ca-compromise-fixes-available)
+- [Launchpad: Ubuntu ca-certificates bug 2171507](https://bugs.launchpad.net/ubuntu/+source/ca-certificates/+bug/2171507)
+- [Debian security tracker](https://security-tracker.debian.org/)
+- [curl: certificate stores and TLS backends](https://curl.se/docs/sslcerts.html)
+- [lilting.ch: macOS curl, Node.js and uv tests against the recovered keys](https://lilting.ch/en/articles/emudhra-weak-intermediate-ca-keys)

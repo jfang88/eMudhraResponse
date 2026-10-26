@@ -72,7 +72,7 @@ the remediated digests.
 ## Watch out for
 
 - Image scanners (Trivy, Grype) report **package** findings. They don't prove
-  which CAs a workload trusts (pack CBOM appendix).
+  which CAs a workload trusts ([CBOM and cross-signing](../CBOM_AND_CROSS_SIGNING.md#tool-capabilities-and-limits)).
 - Long-lived pods keep the old bundle until restarted.
 - **Removing the root breaks legitimate partners** under it. Check PB-13
   before mass redeploys.
@@ -83,4 +83,17 @@ the remediated digests.
 - A P1 workload's image can't be rebuilt (no pipeline, or a vendor image).
 - Your artifact proxy's vendor has no remedy for its embedded JVM.
 
-Depth: [APPLICATION_VALIDATION §2: Containers](../APPLICATION_VALIDATION.md#2-discover-hidden-and-overridden-stores).
+## References
+
+**Related documents**
+
+- [Team guide](README.md)
+- [Application validation §2: containers and CI artefacts](../APPLICATION_VALIDATION.md#2-discover-hidden-and-overridden-stores)
+- [CBOM and cross-signing: scanner limits](../CBOM_AND_CROSS_SIGNING.md#tool-capabilities-and-limits)
+
+**External sources**
+
+- [Launchpad: Ubuntu ca-certificates bug 2171507](https://bugs.launchpad.net/ubuntu/+source/ca-certificates/+bug/2171507)
+- [PyPI: certifi release history](https://pypi.org/project/certifi/#history)
+- [Go: release history (1.27.3 and 1.26.10)](https://go.dev/doc/devel/release)
+- [cert-manager: trust-manager](https://cert-manager.io/docs/trust/trust-manager/)
