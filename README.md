@@ -36,8 +36,32 @@ No universal CBOM, new scanner, bespoke harness or per-instance certificate evid
 | [Remediation options](REMEDIATION_OPTIONS.md) | Specialist reference: targeted fixes without full upgrades |
 | [Validation appendix](APPLICATION_VALIDATION.md) | Selective checks for central assurance and application exceptions |
 | [CBOM and cross-signing reference](CBOM_AND_CROSS_SIGNING.md) | Optional discovery support and longer-term improvement |
+| [Enterprise review (26 Oct)](REVIEW.md) | Gaps, tiering assessment, browser/desktop proviso, long tail and decisions; proposed, not yet dispositioned |
+| [Playbooks](playbooks/README.md) | Per-team and per-stack remediation steps: *applies if / fix / verify / record / escalate* |
+| `eMudhra-response-workbook.xlsx` | Decision register, six-field tracker with calculated priority, assurance, exceptions, hunt log and dashboard |
+| `eMudhra-response-briefing.pptx` / `.pdf` | 16-slide briefing for senior IT management and service owners |
 
 Tier 1 covers critical trust exposure; Tier 2 broad internet client exposure; Tier 3 internal public/mixed trust; Tier 4 demonstrably limited exposure. Unknown exposure is not confirmed vulnerability or an automatic low-risk classification. Agree dates through the existing incident/change process; suspected exploitation or critical outages require immediate escalation.
+
+## Enterprise review (26 October 2026)
+
+The [review](REVIEW.md) proposes changes to this pack for the author to
+disposition. The pack documents above are unchanged.
+
+- **Time-critical:** Chrome removes emSign ECC Root CA - G3 on Tuesday 27
+  October 2026. Replace any of our certificates under that root and brief the
+  service desk ([PB-13](playbooks/PB-13-our-certificates-and-availability.md),
+  [PB-15](playbooks/PB-15-service-desk.md)).
+- **Tiering:** keep the validation-role principle; add verifier susceptibility
+  as a second axis ([REVIEW §3](REVIEW.md#3-does-the-risk-tiering-make-sense)).
+- **Browsers and desktops:** "Validated" only under four enterprise conditions;
+  other software on the device is not covered
+  ([REVIEW §4](REVIEW.md#4-the-browser-and-desktop-proviso)).
+- **Long tail:** find it through egress telemetry, close it with a cut-off and
+  exceptions ([REVIEW §5](REVIEW.md#5-the-long-tail-internet-application-and-certificate-dependent-systems)).
+
+Keep populated copies of the workbook (hostnames, owners, findings) in the
+internal incident system, not in this repository.
 
 ## Sources and status
 
