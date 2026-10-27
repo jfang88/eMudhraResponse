@@ -89,7 +89,7 @@ detail.
 | [Application validation](APPLICATION_VALIDATION.md) | Specialist reference: discovery, testing and acceptance for Route B and central assurance |
 | [CBOM and cross-signing](CBOM_AND_CROSS_SIGNING.md) | Optional deeper discovery, and the AAA cross-sign route |
 | `eMudhra-response-workbook.xlsx` | Decision register, tracker with calculated priority, assurance, proviso, long tail, availability, exceptions, hunt log, facts, dashboard |
-| `eMudhra-response-briefing.pptx` / `.pdf` | 16-slide briefing for senior IT management and service owners |
+| `eMudhra-response-briefing.pptx` / `.pdf` | 17-slide briefing for senior IT management and service owners |
 
 ## Document history
 
@@ -97,6 +97,7 @@ detail.
 |---|---|---|
 | 1 | 24 Oct 2026 | Initial pack: action plan, four risk tiers, completion tracker, remediation options, validation appendix, CBOM and cross-signing reference |
 | 2 | 26 Oct 2026 | Enterprise review incorporated. **Prioritisation** now combines impact with verifier susceptibility, so vendor-protected browsers move down and own-bundle clients move up. **New:** browser and desktop proviso; long-tail discovery through egress telemetry, with a cut-off and exception policy; availability track for Chrome's 27 October root removal; targeted retrospective hunt; code signing and identity paths treated as P1; governance, indicative target windows, a 30-day plan and a decision register; mobile, supplier, service-desk and legal coverage; dated facts with confidence labels. **Added** 17 playbooks, the workbook and the briefing deck. Earlier statements that the pack sets no target windows are replaced by indicative windows pending decision D-03 |
+| 2.1 | 27 Oct 2026 | Briefing deck: prioritisation now spans two slides, one defining both ratings with examples and one placing typical systems in the priority grid (17 slides). The same grid with examples is added to [Prioritisation §4](RISK_TIERS.md#4-priority-matrix) |
 
 ## References
 
