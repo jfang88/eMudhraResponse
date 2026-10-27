@@ -15,10 +15,11 @@ the browsers on them.
 | Chrome | emSign ECC Root CA - G3 removed from the Chrome Root Store | **27 Oct** | None; **legitimate sites under that root will fail** |
 | Firefox (incl. ESR) | OneCRL block via Remote Settings | 17 Oct | None |
 | Safari / Apple OS | Apple block | 19 Oct | None reported; see the macOS CLI note below |
-| Windows (and Edge) | Microsoft block | 20 Oct | None where automatic root and disallowed-certificate updates are on |
+| Windows | Disallowed list update (20 Oct); out-of-band trust-list removal of seven related certificates (26 Oct) | 20 / 26 Oct | None where automatic root and disallowed-certificate updates are on; disconnected machines need the out-of-band update from the Microsoft Update Catalog |
+| Edge and WebView2 | CRLSet update (reported, 20 Oct); the same seven certificates removed from the Edge trust list | 20 / **27 Oct** | None; **legitimate sites under those roots will fail** |
 
-Dates come from vendor statements as reported by the press; confirm them on the
-workbook **Facts** sheet.
+Microsoft's dates come from its own statement; the others come from vendor
+statements as reported by the press. Confirm them on the workbook **Facts** sheet.
 
 ## Fix: usually nothing to install. Confirm the proviso.
 

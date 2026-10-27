@@ -56,8 +56,8 @@ engine, a proxy).
 
 | Code | Verifier type | Examples | Status |
 |---|---|---|---|
-| **A** | Vendor-pushed block, or Certificate Transparency enforced | Chrome, Edge, Firefox, Safari; Windows and Apple trust stores updated by the vendor; Android with Google Play services | Protected, **subject to the [browser and desktop proviso](ACTION_PLAN.md#5-phase-1-browser-and-desktop-proviso)**. Confirm coverage |
-| **B** | Uses the OS store; an update exists but isn't yet confirmed | .NET on Windows, curl, PHP, Ruby, Go on Linux using system roots, Python `ssl` defaults | Protected once the OS update is confirmed on that host |
+| **A** | Already rejects the forged chain: a vendor fix has reached it and the test passes | Chrome, Edge, Firefox, Safari; Windows and Apple trust stores updated by the vendor; Android with current Google Play services; any runtime once its fix is applied and tested (for example a Go binary rebuilt on 1.27.3) | Protected. Confirm coverage; browsers and OS stores count only under the **[browser and desktop proviso](ACTION_PLAN.md#5-phase-1-browser-and-desktop-proviso)** |
+| **B** | Uses the OS store; an update exists but isn't yet confirmed on this host | .NET and PowerShell on Windows; curl, PHP, Ruby, Go and Python `ssl` defaults on Linux; apps using the macOS Keychain | Protected once the OS update is confirmed on that host |
 | **C** | Own bundle or compiled roots | Java `cacerts`, Python certifi, Node built-in roots, Go and Rust binaries with embedded roots, container images | Exposed until the bundle is updated or the binary or image is rebuilt |
 | **D** | Embedded, appliance or vendor-controlled; no fix yet | Appliances, agents, packaged products with embedded runtimes, OT/IoT, SaaS | Exposed until the vendor fixes it; compensating control needed meanwhile |
 | **Unknown** | Not yet assessed | — | Assess at the priority shown in the matrix. Unknown is not low |
@@ -74,6 +74,31 @@ TLS. Windows, Java and older or vendor-modified bundles may still trust it.
 Test both routes there. See
 [CBOM and cross-signing](CBOM_AND_CROSS_SIGNING.md#sectigo--aaa-relevant-but-not-a-sectigo-root-key-compromise).
 
+**"Vendor fix" means tested, not announced.** A vendor statement says a fix
+exists. It doesn't show the fix reached this host, covers both routes, or is
+used by this client. Record A only when the [PB-00](playbooks/PB-00-test-and-evidence.md)
+test passes through the client the service actually uses.
+
+### How each platform reaches A
+
+No platform is protected by default, and each has its own gaps. Dates are as
+at 27 October 2026; see the [README](README.md#situation-as-at-27-october-2026)
+for confidence labels.
+
+| Platform | Reaches A when | Stays B, C or D if |
+|---|---|---|
+| **Windows** (.NET Framework, .NET on Windows, PowerShell 5.1, WinHTTP/SChannel apps) | The Disallowed list update (20 Oct) and the out-of-band trust-list update (26 Oct) are on the host, and both the emSign and AAA routes test clean under the service identity [5] | Automatic root updates are off and the out-of-band update isn't installed from the Update Catalog; code overrides validation (`ServerCertificateCustomValidationCallback`, `CustomRootTrust`); the app is .NET on Linux (OpenSSL store). .NET doesn't check revocation by default, so Sectigo's revocation of the AAA cross-signs doesn't help on its own |
+| **Apple** (Safari; apps using the system trust store) | Apple's block (19 Oct) is on the device | The tool reads `/etc/ssl/cert.pem` (the built-in `curl` still accepted the chain after Apple's block); the app bundles its own roots |
+| **Browsers** (Chrome, Edge, Firefox) | CRLSet or OneCRL received (17–20 Oct); Chrome and Edge root-store removals on 27 Oct | Traffic is TLS-inspected; component updates are blocked; the app is Electron (no CRLSet) |
+| **Android** | Google Play services current | The device has no Play services; the app bundles its own trust anchors |
+| **Linux distributions** | `ca-certificates` updated (Ubuntu 24.04: `20260816ubuntu0.24.04.1`) and services restarted | The Java store wasn't regenerated; container images weren't rebuilt; the distribution fix is still pending |
+| **Go** | Binary rebuilt on Go 1.27.3 or 1.26.10 | Not rebuilt, or built on Go 1.25 or older |
+| **Python** | certifi 2026.10.18 or later deployed and workers restarted | An older certifi is pinned or vendored into a package |
+| **Node.js** | Running a security release published on 20–21 Oct (22.23.4, 24.22.1, 26.12.1; confirm in the Node.js release notes), or using the patched OS store via `--use-system-ca` | Older release with built-in roots; only `NODE_EXTRA_CA_CERTS` used (it adds trust, never removes it); Electron apps awaiting their vendor |
+| **Java** | Vendor remedy applied (Oracle steps; Azul blocklist), JVMs restarted, and both routes test clean | Another vendor's blocklist was copied in; a custom `TrustManager` ignores the store |
+| **Rust** | Rebuilt with webpki-roots 1.0.10 or later, or using the patched OS store | Not rebuilt |
+| **Appliances, agents and SaaS** | The vendor confirms a fix for the deployed version and, where possible, a test passes | No vendor statement; the statement names no version |
+
 ## 4. Priority matrix
 
 | Impact ↓ / Susceptibility → | A | B | C | D | Unknown |
@@ -87,13 +112,14 @@ deck shows the same grid):
 
 | Impact ↓ / Susceptibility → | A: vendor already blocks it | B: OS store, patch unconfirmed | C: own trust list | D: vendor-controlled, no fix | Unknown |
 |---|---|---|---|---|---|
-| **H** | P3: .NET payment client, Microsoft block confirmed | P1: API validating JWTs, OS update unconfirmed | P1: batch job sending customer data to SaaS (Java) | P1: inspection proxy awaiting a vendor fix, with exception | P1 to assess: payment API, runtime not yet identified |
+| **H** | P3: Go payment service rebuilt on Go 1.27.3, test passed | P1: Windows API validating JWTs; Microsoft updates not yet confirmed | P1: batch job sending customer data to SaaS (Java) | P1: inspection proxy awaiting a vendor fix, with exception | P1 to assess: payment API, runtime not yet identified |
 | **M** | P4: managed browser, not TLS-inspected | P2: internal service using the Linux OS store | P2: internal service using certifi or Node's built-in roots | P2: appliance cloud connector, vendor tracked | P2 to assess: internal app not yet assessed |
-| **L** | P4: kiosk browser | P3: low-impact script using the system curl | P3: low-impact tool with its own bundle | P3: printer firmware update check, vendor tracked | P3 to assess: low-impact system not yet assessed |
+| **L** | P4: iPad kiosk on current iOS | P3: low-impact script using the system curl | P3: low-impact tool with its own bundle | P3: printer firmware update check, vendor tracked | P3 to assess: low-impact system not yet assessed |
 
 Systems move across the grid as work is done. Confirming an OS update moves
-a system from B to A; updating or rebuilding its bundle moves it from C to A
-or B. Systems that are not applicable at all, such as a serve-only website,
+a system from B to A. For example, the Windows API above moves to P3 once the
+Microsoft updates are confirmed and both routes test clean. Updating or
+rebuilding its bundle moves a system from C to A or B. Systems that are not applicable at all, such as a serve-only website,
 close through Route C and sit outside the grid. Section 6 has more worked
 cases.
 
@@ -200,6 +226,9 @@ internet-facing systems.
 2. Cloudflare: [8 eMudhra certificates are compromised. Here's what you need to know](https://blog.cloudflare.com/emudhra-certificate-compromise/)
 3. Google Security Blog: [Protecting Chrome and Android users from compromised eMudhra intermediate CA certificates](https://blog.google/security/protecting-chrome-and-android-users-from-compromised-emudhra-intermediate-ca-certificates/)
 4. oss-security: [AAA Certificate Services trust bit discussion, 21 Oct 2026](https://openwall.com/lists/oss-security/2026/10/21/4)
+5. Microsoft Security Response Center: [Microsoft's response to compromised eMudhra certificate authority keys](https://www.microsoft.com/en-us/msrc/blog/2026/10/microsoft-response-to-compromised-emudhra-certificate-authority-keys)
+6. Node.js: [release index (security releases 20–21 Oct)](https://nodejs.org/dist/index.json); Go: [release history](https://go.dev/doc/devel/release); PyPI: [certifi release history](https://pypi.org/project/certifi/#history); crates.io: [webpki-roots versions](https://crates.io/crates/webpki-roots/versions)
+7. lilting.ch: [macOS curl, Node.js and uv tests](https://lilting.ch/en/articles/emudhra-weak-intermediate-ca-keys)
 
 Neither Mozilla, Cloudflare nor Google assigns these enterprise priorities.
 The model is an enterprise assessment derived from the authentication risks

@@ -30,7 +30,7 @@ matters on older or vendor-modified bundles. Check yours.
 | Family | Command (review before running) |
 |---|---|
 | Ubuntu | `sudo apt-get update && sudo apt-get install --only-upgrade ca-certificates libnss3` (Canonical documents targeted packages; see its Java-store note) |
-| Debian | `sudo apt-get update && sudo apt-get install --only-upgrade ca-certificates`. Check the [Debian security tracker](https://security-tracker.debian.org/); the update was still pending on 20 Oct. |
+| Debian | `sudo apt-get update && sudo apt-get install --only-upgrade ca-certificates`. Check the [Debian security tracker](https://security-tracker.debian.org/); Debian 13 was reported patched by 26 Oct. |
 | RHEL, Rocky, Alma, Fedora, Amazon Linux | `sudo dnf upgrade ca-certificates` (or `yum`), then `sudo update-ca-trust` |
 | SUSE | `sudo zypper update ca-certificates-mozilla` |
 | Alpine (often in containers) | `apk upgrade ca-certificates` |

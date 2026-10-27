@@ -17,7 +17,7 @@ steps for each team.
 
 | Role | Responsibility |
 |---|---|
-| **Incident lead** | Runs the response, owns the decision register and the facts box in the [README](README.md#situation-as-at-26-october-2026), chairs daily stand-ups while P1 items are open |
+| **Incident lead** | Runs the response, owns the decision register and the facts box in the [README](README.md#situation-as-at-27-october-2026), chairs daily stand-ups while P1 items are open |
 | **Response steering** (incident lead, Security/PKI, platform, network, application and service-desk leads) | Approves operational decisions; resolves cross-team blockers |
 | **Risk committee / CISO** | Approves target windows, exception policy, closure criteria and the regulatory stance |
 | **Security / PKI** | Owns prioritisation, the approved test matrix, the certificate reference and exception review |
@@ -105,14 +105,17 @@ limitations are recorded and Security accepts the residual uncertainty.
 Browsers and OS trust stores received vendor protection between 17 and 20
 October without user action: Chrome (CRLSet) and Firefox (OneCRL) on 17
 October, Apple on 19 October, Android through Google Play services, and
-Microsoft on 20 October. We record a managed browser or OS configuration as
+Microsoft on 20 October (the Windows Disallowed list, plus a CRLSet update for
+Edge and WebView2). Microsoft then removed seven related certificates from the
+Windows trust list on 26 October and from Edge on 27 October. We record a managed browser or OS configuration as
 **Validated**, not "fixed", and only on a coverage report showing **all**
 of the following (approval is decision D-02):
 
 1. **Reachability.** Devices have been online since 20 October and can reach
    vendor update services. No policy or egress rule blocks browser component
    updates, Mozilla Remote Settings, or Windows automatic root and
-   disallowed-certificate updates.
+   disallowed-certificate updates. Disconnected or locked-down Windows machines have the
+   26 October out-of-band update installed from the Microsoft Update Catalog.
 2. **Currency.** Supported browser and OS versions; Android Google Play
    services current.
 3. **No interception.** The traffic is not decrypted by a TLS-inspection
@@ -192,9 +195,14 @@ public certificates with their own trust data or verifier:
 ## 7. Availability track (Tuesday 27 October)
 
 On the morning of 27 October (US Pacific time), Chrome removes **emSign ECC
-Root CA - G3** from the Chrome Root Store. Legitimate certificates chaining to
-it stop working in Chrome; eMudhra estimates about 30,000 certificates need
-migration worldwide. Mozilla-derived bundles are removing the same root:
+Root CA - G3** from the Chrome Root Store, and Microsoft removes seven related
+certificates from the Edge trust list (already removed from the Windows trust
+list on 26 October). Legitimate certificates chaining to them stop working in
+Chrome, Edge and Windows clients; eMudhra estimates about 30,000 certificates
+need migration worldwide. On 22 October eMudhra also announced it is leaving
+the global SSL/TLS certificate business, offering free replacements through
+partners, so **every eMudhra-issued TLS certificate we use will eventually need
+replacing**, not only those under emSign ECC Root CA - G3. Mozilla-derived bundles are removing the same root:
 Ubuntu `ca-certificates`, certifi from 2026.10.18 and webpki-roots from
 1.0.10. Later releases drop further emSign roots (certifi 2026.10.23 keeps
 only emSign Root CA - G1).
@@ -206,7 +214,7 @@ It will simply stop being trusted. Owner: PKI / certificate management
 - **Certificates we present.** Find them with the lifecycle tool, a
   Certificate Transparency search of our domains and an endpoint scan.
   Replace those under emSign ECC Root CA - G3 now (decision D-04); plan the
-  rest.
+  rest, given eMudhra's exit.
 - **Partner endpoints we call.** Updating our trust stores breaks partners
   still using the removed roots. Notify them and agree dates. If
   business-critical traffic breaks, raise a time-boxed exception with a
@@ -254,7 +262,7 @@ to them, or use Route B where it doesn't.
 | **Security / PKI** | Prioritisation, test matrix, certificate reference, exceptions | Publish the test matrix and certificate reference; replace our emSign ECC G3 certificates | PB-00, PB-13 |
 | **Network / proxy / WAF** | TLS legs verified by shared infrastructure | Validate the inspection proxy; set *block* for untrusted upstream; share the issuer-log query | PB-09 |
 | **IAM / API platform** | Identity integrations and inbound mTLS | Assess JWKS, SAML metadata and mTLS trust lists | PB-16 |
-| **Linux and Windows platform** | Standard stores and runtimes | Publish a Route A record per build; distribute disallowed certificates where auto-update is off | PB-02, PB-03 |
+| **Linux and Windows platform** | Standard stores and runtimes | Publish a Route A record per build; on disconnected Windows servers, install the 26 Oct out-of-band update or distribute the disallowed certificates | PB-02, PB-03 |
 | **Container / DevSecOps** | Images, pipelines, artifact proxies | Rebuild base images; fix the artifact-proxy JVM; list workloads by digest | PB-08 |
 | **Desktop / EUC** | Managed browsers and desktop OS | Coverage report against the four proviso conditions; inventory non-browser apps | PB-01 |
 | **Mobile / MDM** | Managed mobile fleet; in-house app trust | Fleet coverage; list in-house apps that handle credentials or payments | PB-10 |
@@ -390,6 +398,8 @@ register, with columns for the decision taken, the rationale and the date.
 7. lilting.ch: [Testing curl, Node.js and uv on macOS against the recovered keys](https://lilting.ch/en/articles/emudhra-weak-intermediate-ca-keys)
 8. iTnews: [Cloudflare warns fixing botched eMudhra certs goes beyond browsers](https://www.itnews.com.au/news/cloudflare-warns-fixing-botched-emudhra-certs-goes-beyond-browsers-629804)
 9. certifi on PyPI: [release history](https://pypi.org/project/certifi/#history); webpki-roots on crates.io: [versions](https://crates.io/crates/webpki-roots/versions)
+10. Microsoft Security Response Center: [Microsoft's response to compromised eMudhra certificate authority keys](https://www.microsoft.com/en-us/msrc/blog/2026/10/microsoft-response-to-compromised-emudhra-certificate-authority-keys)
+11. The Hacker News: [eMudhra to exit global SSL/TLS business](https://thehackernews.com/2026/10/emudhra-to-exit-global-ssltls-business.html)
 
 This is a proposed enterprise workflow. It does not assert that enterprise
 systems have been assessed or remediated.

@@ -18,6 +18,8 @@ will simply stop being trusted as roots are removed.
 | Change | Effect |
 |---|---|
 | **27 Oct**: Chrome removes emSign ECC Root CA - G3 from the Chrome Root Store | Sites with certificates under that root fail in Chrome. eMudhra's initial estimate is about 30,000 certificates needing migration |
+| **26–27 Oct**: Microsoft removes seven related certificates from the Windows trust list (26 Oct) and the Edge trust list (27 Oct) | Windows clients (.NET, PowerShell, SChannel apps) and Edge fail against sites and partners under those roots |
+| **22 Oct**: eMudhra announces it is leaving the global SSL/TLS certificate business, with free replacements through partners | Every eMudhra-issued TLS certificate we use needs replacing eventually, not only those under emSign ECC Root CA - G3 |
 | Mozilla NSS, Ubuntu `ca-certificates`, certifi ≥ 2026.10.18, webpki-roots ≥ 1.0.10 remove emSign ECC Root CA - G3 | Our non-browser clients (after we patch them) fail against partners using that root |
 | certifi 2026.10.23 and webpki-roots 1.0.11 also drop other emSign roots (only emSign Root CA - G1 remains in certifi) | A wider set of partner certificates may break on those versions |
 
@@ -98,6 +100,8 @@ with **Availability flag = Yes** until replaced.
 
 **External sources**
 
+- [Microsoft Security Response Center: response to compromised eMudhra CA keys](https://www.microsoft.com/en-us/msrc/blog/2026/10/microsoft-response-to-compromised-emudhra-certificate-authority-keys)
+- [The Hacker News: eMudhra to exit global SSL/TLS business](https://thehackernews.com/2026/10/emudhra-to-exit-global-ssltls-business.html)
 - [Google Security Blog: protecting Chrome and Android users from compromised eMudhra intermediates](https://blog.google/security/protecting-chrome-and-android-users-from-compromised-emudhra-intermediate-ca-certificates/)
 - [PyPI: certifi release history](https://pypi.org/project/certifi/#history)
 - [crates.io: webpki-roots versions](https://crates.io/crates/webpki-roots/versions)
