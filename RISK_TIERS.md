@@ -82,6 +82,21 @@ Test both routes there. See
 | **M** | P4: confirm coverage | P2 | P2 | P2 + vendor tracking | P2 to assess |
 | **L** | P4 | P3 | P3 | P3 + vendor tracking | P3 to assess |
 
+**Where common systems land** (one typical example per cell; the briefing
+deck shows the same grid):
+
+| Impact ↓ / Susceptibility → | A: vendor already blocks it | B: OS store, patch unconfirmed | C: own trust list | D: vendor-controlled, no fix | Unknown |
+|---|---|---|---|---|---|
+| **H** | P3: .NET payment client, Microsoft block confirmed | P1: API validating JWTs, OS update unconfirmed | P1: batch job sending customer data to SaaS (Java) | P1: inspection proxy awaiting a vendor fix, with exception | P1 to assess: payment API, runtime not yet identified |
+| **M** | P4: managed browser, not TLS-inspected | P2: internal service using the Linux OS store | P2: internal service using certifi or Node's built-in roots | P2: appliance cloud connector, vendor tracked | P2 to assess: internal app not yet assessed |
+| **L** | P4: kiosk browser | P3: low-impact script using the system curl | P3: low-impact tool with its own bundle | P3: printer firmware update check, vendor tracked | P3 to assess: low-impact system not yet assessed |
+
+Systems move across the grid as work is done. Confirming an OS update moves
+a system from B to A; updating or rebuilding its bundle moves it from C to A
+or B. Systems that are not applicable at all, such as a serve-only website,
+close through Route C and sit outside the grid. Section 6 has more worked
+cases.
+
 **Indicative target windows** (from discovery or assignment; approval is
 decision D-03):
 
