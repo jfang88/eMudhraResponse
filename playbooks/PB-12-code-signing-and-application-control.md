@@ -13,7 +13,7 @@
 
 Two of the eight compromised intermediates are **code-signing** CAs, reported
 as trusted by Microsoft. With the key, anyone could sign a binary so that
-Windows reported a valid signature until the Microsoft block (20 Oct) reached
+Windows reported a valid signature until Microsoft's Disallowed list update (20 Oct) reached
 the device. The keys were weak from generation on **30 April 2025**.
 
 eMudhra states the affected intermediates issued **no end-entity
@@ -24,7 +24,7 @@ finding to triage.
 ## Fix
 
 1. **Windows distrust.** Confirm every Windows endpoint and server has the
-   Microsoft block (PB-01 condition 1, PB-02). Where automatic updates are
+   Microsoft Disallowed list update (PB-01 condition 1, PB-02). Where automatic updates are
    off, deploy the two code-signing intermediates (and the TLS ones) to the
    **Untrusted Certificates** store through Group Policy or MDM.
 2. **Review application-control rules.**
@@ -92,6 +92,7 @@ DeviceFileCertificateInfo
 
 **External sources**
 
+- [Microsoft Security Response Center: response to compromised eMudhra CA keys](https://www.microsoft.com/en-us/msrc/blog/2026/10/microsoft-response-to-compromised-emudhra-certificate-authority-keys)
 - [Free Press Journal: vendor block dates and code-signing intermediates](https://www.freepressjournal.in/tech/why-did-apple-google-microsoft-mozilla-block-certificates-from-indian-firm-emudhra)
 - [Microsoft: configure trusted roots and disallowed certificates](https://learn.microsoft.com/en-us/windows-server/identity/ad-cs/configure-trusted-roots-disallowed-certificates)
 - [Microsoft Defender: DeviceFileCertificateInfo table](https://learn.microsoft.com/en-us/defender-xdr/advanced-hunting-devicefilecertificateinfo-table)

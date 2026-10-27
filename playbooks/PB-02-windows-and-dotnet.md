@@ -16,9 +16,14 @@ their playbooks.
 
 ## Fix
 
-**Option 1: Microsoft's disallowed-certificate update (preferred).** Microsoft
-blocked the intermediates on 20 October. Servers with automatic root and
-disallowed updates enabled receive it without a reboot.
+**Option 1: Microsoft's updates (preferred).** Microsoft published a Windows
+Disallowed Certificate Trust List update on 20 October, and an out-of-band
+update on 26 October that removes seven related certificates, including an AAA
+Certificate Services cross-sign, from the Windows trust list. Servers with
+automatic root and disallowed updates enabled receive the trust-list changes
+without a reboot. Disconnected or locked-down servers install the out-of-band
+update from the Microsoft Update Catalog (third parties report it as
+KB5134130, KB5134133 and KB5134134; confirm in the catalog).
 
 ```powershell
 # Read-only. 1 for DisableRootAutoUpdate, or 0 for EnableDisallowedCertAutoUpdate,
@@ -75,6 +80,9 @@ A text match isn't a finding until you confirm the code path is live (see
 
   A `CHECK` line must show a certificate trust or revocation error. A timeout or
   name-resolution error is inconclusive ([PB-00](PB-00-test-and-evidence.md)).
+  **The AAA host matters on Windows.** Windows still trusts AAA Certificate
+  Services, and .NET doesn't check revocation by default, so only Microsoft's
+  updates (or your own Untrusted Certificates entries) block that route.
 - Recycle the application pool or restart the service, then confirm one
   normal business call works.
 
@@ -110,6 +118,8 @@ A text match isn't a finding until you confirm the code path is live (see
 
 **External sources**
 
+- [Microsoft Security Response Center: response to compromised eMudhra CA keys](https://www.microsoft.com/en-us/msrc/blog/2026/10/microsoft-response-to-compromised-emudhra-certificate-authority-keys)
+- [NTCompatible: out-of-band Windows 11 updates (KB numbers)](https://www.ntcompatible.com/story/microsoft-ships-outofband-windows-11-updates-over-emudhra-compromise)
 - [Microsoft: configure trusted roots and disallowed certificates](https://learn.microsoft.com/en-us/windows-server/identity/ad-cs/configure-trusted-roots-disallowed-certificates)
 - [Microsoft: .NET Framework TLS guidance](https://learn.microsoft.com/en-us/dotnet/framework/network-programming/tls)
 - [Free Press Journal: vendor block dates and code-signing intermediates](https://www.freepressjournal.in/tech/why-did-apple-google-microsoft-mozilla-block-certificates-from-indian-firm-emudhra)

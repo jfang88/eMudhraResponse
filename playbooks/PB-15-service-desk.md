@@ -9,10 +9,12 @@ Browser and operating-system vendors **already blocked them automatically**
 between 17 and 20 October. **Users don't need to do anything** on managed
 devices except keep them switched on, connected and up to date.
 
-From 27 October, Chrome stops trusting one of eMudhra's root certificates.
-Some **legitimate** websites that use eMudhra certificates will show a
-certificate error in Chrome until those sites change certificate. This is
-expected and isn't caused by our devices.
+From 26–27 October, Chrome, Edge and Windows stop trusting some of eMudhra's
+root certificates. Some **legitimate** websites and business applications that
+use eMudhra certificates will show certificate errors until those sites change
+certificate. eMudhra is also leaving the TLS certificate business, so more of
+these sites will change certificates over the coming weeks. This is expected
+and isn't caused by our devices.
 
 ## Common questions
 
@@ -26,7 +28,7 @@ expected and isn't caused by our devices.
 ## Triage: website or application certificate errors
 
 1. Record the **URL**, browser and version, device, network (office, home,
-   VPN), time, and the exact error text. Chrome typically shows
+   VPN), time, and the exact error text. Chrome and Edge typically show
    `NET::ERR_CERT_AUTHORITY_INVALID` or `NET::ERR_CERT_REVOKED`.
 2. Ask the user to click the padlock or error details and read the **issuer**.
    Or check it yourself.
@@ -67,4 +69,5 @@ expected and isn't caused by our devices.
 
 **External sources**
 
+- [Microsoft Security Response Center: response to compromised eMudhra CA keys](https://www.microsoft.com/en-us/msrc/blog/2026/10/microsoft-response-to-compromised-emudhra-certificate-authority-keys)
 - [Google Security Blog: protecting Chrome and Android users from compromised eMudhra intermediates](https://blog.google/security/protecting-chrome-and-android-users-from-compromised-emudhra-intermediate-ca-certificates/)

@@ -44,7 +44,7 @@ assurance, targeted exception testing and existing change processes. A
 trust-data update or targeted fix may avoid a full application upgrade. Our
 enterprise's exposure and compromise status have not yet been assessed.
 
-## Situation as at 26 October 2026
+## Situation as at 27 October 2026
 
 | Date (2026) | Event | Confidence |
 |---|---|---|
@@ -52,18 +52,20 @@ enterprise's exposure and compromise status have not yet been assessed.
 | 17 Oct | Report received. Chrome blocks the keys by CRLSet and Firefox by OneCRL, with no browser update or restart needed [4][7] | Primary (Google) |
 | 19 Oct | Apple blocks. Android receives protection through Google Play services. Sectigo revokes the eight AAA cross-certificates. Go 1.27.3 and 1.26.10 published (programs must be rebuilt) [3][5][8] | Secondary; Go release verified |
 | 19–23 Oct | Rust webpki-roots 1.0.10 and Python certifi 2026.10.18 and later drop emSign ECC Root CA - G3 [9][10] | Verified (package contents) |
-| 20 Oct | Microsoft blocks. Ubuntu 24.04 `ca-certificates` blocklists emSign ECC Root CA - G3 [6][11] | Secondary; Ubuntu verified |
-| 20–21 Oct | Node.js, Bun, Debian and FreeBSD fixes pending. macOS's built-in `curl` still accepted the affected chain after Apple's block [12][13] | Secondary |
+| 20 Oct | Microsoft updates the Windows Disallowed Certificate Trust List to block the affected CAs; Edge and WebView2 also receive a CRLSet update [15][16]. Ubuntu 24.04 `ca-certificates` blocklists emSign ECC Root CA - G3 [11] | Primary (Microsoft); Edge CRLSet secondary; Ubuntu verified |
+| 20–21 Oct | Node.js security releases 22.23.4 and 24.22.1 (20 Oct) and 26.12.1 (21 Oct) published; third-party advisories list them as the fix [17][18]. Debian 13 `ca-certificates` reported patched; Bun and FreeBSD status unconfirmed. macOS's built-in `curl` still accepted the affected chain after Apple's block [12][13] | Node releases verified; fix content secondary |
 | 21 Oct | No confirmed malicious use. Google found no TLS certificate under the six intermediates in CT logs before the block. That protects CT-enforcing browsers but says nothing about clients that don't check CT [5][14] | Secondary |
-| 26 Oct | Node.js 22.22.0's built-in roots still include emSign ECC Root CA - G3 | Verified |
-| **27 Oct** | **Chrome removes emSign ECC Root CA - G3** from its root store. Legitimate certificates under it fail in Chrome; eMudhra estimates about 30,000 need migration [4] | Primary (Google) |
+| 22 Oct | eMudhra's board decides to exit the global SSL/TLS certificate business; replacement certificates offered free through partners, including Sectigo-issued alternatives; no exit date given [19] | Secondary |
+| 26 Oct | Microsoft out-of-band update removes seven certificates linked to the affected hierarchies, including an AAA Certificate Services cross-sign, from the Windows trust list. Disconnected machines install it from the Microsoft Update Catalog (reported as KB5134130, KB5134133 and KB5134134) [15][20] | Primary (Microsoft); KB numbers secondary |
+| 26 Oct | Node.js 22.22.0 (pre-fix release) still includes emSign ECC Root CA - G3 in its built-in roots | Verified |
+| **27 Oct** | **Chrome removes emSign ECC Root CA - G3** from its root store, and **Microsoft removes the same seven certificates from the Edge trust list**. Legitimate certificates under these roots fail in Chrome and Edge; eMudhra estimates about 30,000 need migration [4][15] | Primary (Google, Microsoft) |
 
 The incident lead owns this table and rechecks it daily while the incident is
 open (workbook *Facts* sheet). "Verified" items were checked directly against
-package contents on 26 October. "Secondary" items come from press coverage of
-vendor statements, because the primary pages could not be fetched when this
-version was prepared. Confirm them against the vendor before acting on a
-detail.
+package contents or release indexes on 26–27 October. "Secondary" items come
+from press coverage or third-party advisories, because the primary pages could
+not be fetched when this version was prepared. Confirm them against the vendor
+before acting on a detail.
 
 ## What each audience receives
 
@@ -98,6 +100,7 @@ detail.
 | 1 | 24 Oct 2026 | Initial pack: action plan, four risk tiers, completion tracker, remediation options, validation appendix, CBOM and cross-signing reference |
 | 2 | 26 Oct 2026 | Enterprise review incorporated. **Prioritisation** now combines impact with verifier susceptibility, so vendor-protected browsers move down and own-bundle clients move up. **New:** browser and desktop proviso; long-tail discovery through egress telemetry, with a cut-off and exception policy; availability track for Chrome's 27 October root removal; targeted retrospective hunt; code signing and identity paths treated as P1; governance, indicative target windows, a 30-day plan and a decision register; mobile, supplier, service-desk and legal coverage; dated facts with confidence labels. **Added** 17 playbooks, the workbook and the briefing deck. Earlier statements that the pack sets no target windows are replaced by indicative windows pending decision D-03 |
 | 2.1 | 27 Oct 2026 | Briefing deck: prioritisation now spans two slides, one defining both ratings with examples and one placing typical systems in the priority grid (17 slides). The same grid with examples is added to [Prioritisation §4](RISK_TIERS.md#4-priority-matrix) |
+| 2.2 | 27 Oct 2026 | Microsoft's own statement incorporated: Disallowed list (20 Oct), Windows trust-list removal (26 Oct), Edge removal (27 Oct). Susceptibility examples rebalanced across vendors, with a per-platform table in [Prioritisation §3](RISK_TIERS.md#how-each-platform-reaches-a); the grid's high-impact example in column A is no longer Microsoft-specific. Node.js security releases and eMudhra's exit from the TLS business added; availability track covers Windows and Edge |
 
 ## References
 
@@ -115,13 +118,20 @@ detail.
 12. Rescana: [eMudhra intermediate CA key compromise, October 2026](https://rescana.com/post/emudhra-intermediate-ca-key-compromise-october-2026)
 13. lilting.ch: [Recovering eMudhra's weak P-384 CA keys and testing curl, Node.js and uv on macOS](https://lilting.ch/en/articles/emudhra-weak-intermediate-ca-keys)
 14. iTnews: [Cloudflare warns fixing botched eMudhra certs goes beyond browsers](https://www.itnews.com.au/news/cloudflare-warns-fixing-botched-emudhra-certs-goes-beyond-browsers-629804)
+15. Microsoft Security Response Center: [Microsoft's response to compromised eMudhra certificate authority keys](https://www.microsoft.com/en-us/msrc/blog/2026/10/microsoft-response-to-compromised-emudhra-certificate-authority-keys)
+16. Help Net Security: [eMudhra security blunder left trusted CA signing keys exposed](https://www.helpnetsecurity.com/2026/10/21/emudhra-certificates-private-keys-compromised/)
+17. Node.js: [release index](https://nodejs.org/dist/index.json)
+18. Fleet: [Find and fix eMudhra intermediate CA exposure](https://fleetdm.com/guides/find-and-fix-emudhra-intermediate-ca-exposure)
+19. The Hacker News: [eMudhra to exit global SSL/TLS business](https://thehackernews.com/2026/10/emudhra-to-exit-global-ssltls-business.html); CSO Online: [eMudhra quits global TLS certificate market](https://www.csoonline.com/article/4239634/emudhra-quits-global-tls-certificate-market-after-compromise-of-ca-signing-keys-2.html)
+20. NTCompatible: [Microsoft ships out-of-band Windows 11 updates over eMudhra compromise](https://www.ntcompatible.com/story/microsoft-ships-outofband-windows-11-updates-over-emudhra-compromise)
 
 Further coverage used in preparing version 2:
 [CSO Online](https://www.csoonline.com/article/4238338/google-mozilla-revoke-emudhra-intermediates-after-private-key-compromise.html),
 [The Hacker News](https://thehackernews.com/2026/10/eight-emudhra-ca-keys-compromised.html),
 [Endor Labs](https://www.endorlabs.com/learn/emudhra-intermediate-ca-compromise-the-trust-stores-you-patched-and-the-ones-you-didnt-know-you-had),
 [oss-security](https://www.openwall.com/lists/oss-security/2026/10/20/30),
-[Veeam KB4952](https://www.veeam.com/kb4952).
+[Veeam KB4952](https://www.veeam.com/kb4952),
+[Fleet](https://fleetdm.com/articles/emudhra-ca-compromise-trust-stores-fleet).
 
 This repository contains proposed procedures, not completed enterprise
 assessments. No team messages have been sent. Recheck vendor guidance before

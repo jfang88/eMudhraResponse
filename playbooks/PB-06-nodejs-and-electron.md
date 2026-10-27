@@ -10,9 +10,10 @@
   build your own.
 
 Node compiles a copy of the Mozilla root list **into the binary** and doesn't
-check revocation. On 20–21 October the Node.js and Bun fixes were still
-**pending** (check the workbook **Facts** sheet). Until a fixed release exists,
-use a configuration change.
+check revocation. Node.js published security releases on 20–21 October
+(22.23.4, 24.22.1, 26.12.1), which third-party advisories list as the fix;
+confirm in the Node.js security release notes. Bun's status is unconfirmed.
+Until you're on a fixed release, use a configuration change.
 
 ## Check what the runtime trusts
 
@@ -31,8 +32,9 @@ only, not the whole environment): `NODE_OPTIONS`, `NODE_EXTRA_CA_CERTS`,
 
 ## Fix: pick the first option that applies
 
-**Option 1: a fixed Node/Bun release**, once published. Upgrade within your
-current major line and redeploy.
+**Option 1: a fixed release.** Upgrade within your current major line to
+22.23.4, 24.22.1 or 26.12.1 (or later) and redeploy. For Bun, use its fixed
+release once confirmed.
 
 **Option 2: use the OS store, which is already patched.**
 
@@ -109,7 +111,7 @@ app's real client, and restart the service so new flags take effect.
 
 ## Escalate when
 
-- No fixed release exists, and the app's client ignores both OS-store flags
+- No fixed release exists for your major line, and the app's client ignores both OS-store flags
   and explicit agents, on a P1 path.
 - An Electron vendor won't commit to a date.
 
@@ -122,6 +124,7 @@ app's real client, and restart the service so new flags take effect.
 
 **External sources**
 
+- [Node.js release index (security releases 20–21 October)](https://nodejs.org/dist/index.json)
 - [Node.js: command-line options (CA selection)](https://nodejs.org/api/cli.html)
 - [Node.js: TLS client CA options](https://nodejs.org/api/tls.html)
 - [Rescana: fix-status summary, 20–21 October](https://rescana.com/post/emudhra-intermediate-ca-key-compromise-october-2026)
